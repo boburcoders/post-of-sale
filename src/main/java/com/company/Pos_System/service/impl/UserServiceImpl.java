@@ -6,6 +6,7 @@ import com.company.Pos_System.models.Users;
 import com.company.Pos_System.repository.UserRepository;
 import com.company.Pos_System.service.UserService;
 import com.company.Pos_System.service.mapper.UserMapper;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -84,6 +85,18 @@ public class UserServiceImpl implements UserService {
 
         List<UserDto> userDtoList = this.userMapper.ToDtoList(usersList);
 
+        return HttpApiResponse.<List<UserDto>>builder()
+                .status(HttpStatus.OK)
+                .message("OK")
+                .data(userDtoList)
+                .build();
+    }
+
+    @Override
+    public HttpApiResponse<List<UserDto>> getAllUsers() {
+        List<Users> usersList = userRepository.findAllByDeletedAtIsNull().orElseThrow((
+                () -> new EntityNotFoundException("Users not found")));
+        List<UserDto> userDtoList = this.userMapper.ToDtoList(usersList);
         return HttpApiResponse.<List<UserDto>>builder()
                 .status(HttpStatus.OK)
                 .message("OK")

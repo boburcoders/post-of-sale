@@ -20,7 +20,7 @@ public class OrderController {
     @PostMapping
     @Operation(summary = "Create a Order", description = "Create a order")
     HttpApiResponse<OrdersDto> createOrder(@RequestBody OrdersDto dto) {
-        return orderService.createOrder(dto, dto.getOrderItems());
+        return orderService.createOrder(dto);
     }
 
     @GetMapping("/{id}")

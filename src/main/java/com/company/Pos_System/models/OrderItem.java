@@ -1,11 +1,10 @@
 package com.company.Pos_System.models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.util.HashSet;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -14,10 +13,11 @@ import java.util.Set;
 @Builder
 @Entity
 @Table(name = "order_items")
-public class OrderItems extends BaseEntity {
+public class OrderItem extends BaseEntity {
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id")
-    private Orders order;
+    @JoinColumn(name = "order_id", nullable = false)
+    private Order order;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
@@ -32,6 +32,4 @@ public class OrderItems extends BaseEntity {
     public BigDecimal getTotalPrice() {
         return price.multiply(quantity);
     }
-
-
 }

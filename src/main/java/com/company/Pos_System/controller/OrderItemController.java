@@ -15,10 +15,10 @@ import java.util.List;
 public class OrderItemController {
     private final OrderItemService orderItemService;
 
-    @PostMapping("/{productId}")
+    @PostMapping
     @Operation(summary = "Create OrderItem", description = "Create OrderItem With productId")
-    HttpApiResponse<OrderItemDto> createOrderItem(@PathVariable Long productId, @RequestBody OrderItemDto dto) {
-        return orderItemService.createOrderItem(productId, dto);
+    HttpApiResponse<List<OrderItemDto>> createOrderItem(@RequestBody List<OrderItemDto> dtoList) {
+        return orderItemService.createOrderItem(dtoList);
     }
 
     @GetMapping("/{id}")

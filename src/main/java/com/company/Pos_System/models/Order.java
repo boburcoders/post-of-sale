@@ -2,6 +2,7 @@ package com.company.Pos_System.models;
 
 import com.company.Pos_System.enums.OrderStatus;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -12,32 +13,23 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
 @Builder
+@Entity
 @Table(name = "orders")
-public class Orders extends BaseEntity{
+public class Order extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private Users user;
 
     @Column(nullable = false)
-    private BigDecimal total;
+    private BigDecimal total = BigDecimal.ZERO;
 
-
-    @Column(nullable = false, length = 50)
     @Enumerated(EnumType.STRING)
-    private OrderStatus status=OrderStatus.PENDING;
+    @Column(nullable = false, length = 50)
+    private OrderStatus status = OrderStatus.PENDING;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<OrderItems> orderItems = new ArrayList<>();
-
-    public BigDecimal calculateTotal() {
-        return orderItems.stream()
-                .map(OrderItems::getTotalPrice)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-    }
-
-
+    private List<OrderItem> orderItems = new ArrayList<>();
 
 }

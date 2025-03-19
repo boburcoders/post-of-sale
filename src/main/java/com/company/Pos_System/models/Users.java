@@ -21,6 +21,6 @@ public class Users extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private UserRole role;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Orders> orders = new ArrayList<>();
+    private List<Order> orders = new ArrayList<>();
 
 }

@@ -1,7 +1,6 @@
 package com.company.Pos_System.dto;
 
 import com.company.Pos_System.enums.UserRole;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -19,5 +18,6 @@ public class UserDto {
     private String password;
     private UserRole role;
     private List<OrdersDto> orders = new ArrayList<>();
+
 
 }

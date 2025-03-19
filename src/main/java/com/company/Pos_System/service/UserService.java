@@ -21,4 +21,6 @@ public interface UserService {
     HttpApiResponse<UserDto> getUserById(Long id);
 
     HttpApiResponse<List<UserDto>> findUsersByUsername(String username);
+
+    HttpApiResponse<List<UserDto>> getAllUsers();
 }

@@ -3,6 +3,7 @@ package com.company.Pos_System.dto;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 
 @Getter
@@ -17,4 +18,7 @@ public class ProductDto {
     private String description;
     private BigDecimal price;
     private Long categoryId;
+
+    private LocalDateTime createdAt;
+
 }

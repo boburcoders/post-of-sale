@@ -4,6 +4,7 @@ import com.company.Pos_System.models.Product;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -17,7 +18,10 @@ import java.util.Set;
 public class OrderItemDto {
     private Long id;
     private Long orderId;
-    private ProductDto productDto;
+    private Long productId;
     private BigDecimal quantity = BigDecimal.ONE;
     private BigDecimal price;
+
+    private LocalDateTime createdAt;
+
 }

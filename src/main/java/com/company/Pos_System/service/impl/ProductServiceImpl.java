@@ -3,7 +3,6 @@ package com.company.Pos_System.service.impl;
 import com.company.Pos_System.dto.HttpApiResponse;
 import com.company.Pos_System.dto.ProductDto;
 import com.company.Pos_System.models.Category;
-import com.company.Pos_System.models.OrderItems;
 import com.company.Pos_System.models.Product;
 import com.company.Pos_System.repository.CategoryRepository;
 import com.company.Pos_System.repository.OrderItemRepository;
@@ -29,24 +28,20 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public HttpApiResponse<ProductDto> createProduct(Long categoryId, ProductDto dto) {
-        // Input validation
-        if (categoryId == null || dto == null) {
+    public HttpApiResponse<ProductDto> createProduct(ProductDto dto) {
+        if (dto == null) {
             return HttpApiResponse.<ProductDto>builder()
                     .status(HttpStatus.BAD_REQUEST)
                     .message("Category ID and Product DTO cannot be null")
                     .build();
         }
 
-        // Fetch category efficiently
-        Category category = categoryRepository.findByIdAndDeletedAtIsNull(categoryId)
-                .orElseThrow(() -> new EntityNotFoundException("Category not found with ID: " + categoryId));
+        Category category = categoryRepository.findByIdAndDeletedAtIsNull(dto.getCategoryId())
+                .orElseThrow(() -> new EntityNotFoundException("Category not found with ID: " + dto.getCategoryId()));
 
-        // Map DTO to entity
         Product product = productMapper.toEntity(dto);
         product.setCategory(category);
 
-        // Add product to category's collection (preserving existing products)
         if (category.getProducts() == null) {
             category.setProducts(new HashSet<>());
         }

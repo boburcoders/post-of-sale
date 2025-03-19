@@ -8,7 +8,7 @@ import java.util.List;
 
 @Service
 public interface OrderItemService {
-    HttpApiResponse<OrderItemDto> createOrderItem(Long productId, OrderItemDto dto);
+    HttpApiResponse<List<OrderItemDto>> createOrderItem(List<OrderItemDto> dtoList);
 
     HttpApiResponse<OrderItemDto> getOrderItemById(Long id);
 

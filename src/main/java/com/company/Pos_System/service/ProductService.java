@@ -9,7 +9,7 @@ import java.util.Set;
 
 @Service
 public interface ProductService {
-    HttpApiResponse<ProductDto> createProduct(Long categoryId,ProductDto dto);
+    HttpApiResponse<ProductDto> createProduct(ProductDto dto);
 
     HttpApiResponse<ProductDto> getProductById(Long id);
 

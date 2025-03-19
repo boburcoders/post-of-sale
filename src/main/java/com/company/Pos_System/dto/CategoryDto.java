@@ -1,11 +1,9 @@
 package com.company.Pos_System.dto;
 
-import com.company.Pos_System.models.BaseEntity;
 import lombok.*;
 
-import java.util.ArrayList;
+import java.time.LocalDateTime;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -13,7 +11,7 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CategoryDto extends BaseEntity {
+public class CategoryDto {
     private Long id;
     private String name;
     private String description;

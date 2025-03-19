@@ -32,6 +32,7 @@ public class ProductMapper {
                 .description(entity.getDescription())
                 .price(entity.getPrice())
                 .serial(entity.getSerial())
+                .createdAt(entity.getCreatedAt())
                 .categoryId(entity.getCategory().getId())
                 .build();
     }

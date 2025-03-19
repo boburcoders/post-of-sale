@@ -2,9 +2,11 @@ package com.company.Pos_System.service.impl;
 
 import com.company.Pos_System.dto.HttpApiResponse;
 import com.company.Pos_System.dto.OrderItemDto;
-import com.company.Pos_System.models.OrderItems;
+import com.company.Pos_System.models.Order;
+import com.company.Pos_System.models.OrderItem;
 import com.company.Pos_System.models.Product;
 import com.company.Pos_System.repository.OrderItemRepository;
+import com.company.Pos_System.repository.OrderRepository;
 import com.company.Pos_System.repository.ProductRepository;
 import com.company.Pos_System.service.OrderItemService;
 import com.company.Pos_System.service.mapper.OrderItemMapper;
@@ -16,10 +18,11 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 
 @Component
@@ -27,41 +30,74 @@ import java.util.Set;
 public class OrderItemServiceImpl implements OrderItemService {
     private final OrderItemRepository orderItemRepository;
     private final ProductRepository productRepository;
+    private final OrderRepository orderRepository;
     private final OrderItemMapper orderItemMapper;
 
     @Override
     @Transactional
-    public HttpApiResponse<OrderItemDto> createOrderItem(Long productId, OrderItemDto dto) {
-        Objects.requireNonNull(productId, "Product ID cannot be null");
-        Objects.requireNonNull(dto, "OrderItem DTO cannot be null");
+    public HttpApiResponse<List<OrderItemDto>> createOrderItem(List<OrderItemDto> dtoList) {
+        if (dtoList == null || dtoList.isEmpty()) {
+            return HttpApiResponse.<List<OrderItemDto>>builder()
+                    .status(HttpStatus.BAD_REQUEST)
+                    .message("OrderItem list cannot be null or empty")
+                    .build();
+        }
 
-        Product product = productRepository.findByIdAndDeletedAtIsNull(productId)
-                .orElseThrow(() -> new EntityNotFoundException("Product not found with ID: " + productId));
+        List<OrderItem> orderItemsToSave = new ArrayList<>();
 
-        // Ensure valid quantity
-        BigDecimal quantity = (dto.getQuantity() != null && dto.getQuantity().compareTo(BigDecimal.ZERO) > 0)
-                ? dto.getQuantity()
-                : BigDecimal.ONE;
+        for (OrderItemDto dto : dtoList) {
+            Objects.requireNonNull(dto, "OrderItem DTO cannot be null");
+            Objects.requireNonNull(dto.getProductId(), "Product ID cannot be null");
+            Objects.requireNonNull(dto.getOrderId(), "Order ID cannot be null");
 
-        BigDecimal price = product.getPrice().multiply(quantity); // Use product price
+            Product product = productRepository.findByIdAndDeletedAtIsNull(dto.getProductId())
+                    .orElseThrow(() -> new EntityNotFoundException("Product not found with ID: " + dto.getProductId()));
+            Order order = orderRepository.findByIdAndDeletedAtIsNull(dto.getOrderId())
+                    .orElseThrow(() -> new EntityNotFoundException("Order not found with ID: " + dto.getOrderId()));
 
-        OrderItems entity = orderItemMapper.toEntity(dto);
-        entity.setProduct(product);
-        entity.setQuantity(quantity);
-        entity.setPrice(price);
+            BigDecimal quantity = (dto.getQuantity() != null && dto.getQuantity().compareTo(BigDecimal.ZERO) > 0)
+                    ? dto.getQuantity()
+                    : BigDecimal.ONE;
 
-        OrderItems savedEntity = orderItemRepository.save(entity);
+            BigDecimal totalPrice = product.getPrice().multiply(quantity);
 
-        return HttpApiResponse.<OrderItemDto>builder()
+            BigDecimal orderTotalPrice = (order.getTotal() != null)
+                    ? order.getTotal().add(totalPrice)
+                    : totalPrice;
+            order.setTotal(orderTotalPrice);
+
+            OrderItem entity = orderItemMapper.toEntity(dto);
+            entity.setOrder(order);
+            entity.setProduct(product);
+            entity.setQuantity(quantity);
+            entity.setPrice(totalPrice);
+
+            orderItemsToSave.add(entity);
+
+
+            List<OrderItem> existingItems = order.getOrderItems() != null ? order.getOrderItems() : new ArrayList<>();
+            existingItems.add(entity);
+            order.setOrderItems(existingItems);
+        }
+
+        List<OrderItem> savedOrderItems = orderItemRepository.saveAll(orderItemsToSave);
+
+        Set<Order> ordersToSave = orderItemsToSave.stream()
+                .map(OrderItem::getOrder)
+                .collect(Collectors.toSet());
+        orderRepository.saveAll(ordersToSave);
+
+        return HttpApiResponse.<List<OrderItemDto>>builder()
                 .status(HttpStatus.CREATED)
-                .message("OrderItem created successfully")
-                .data(orderItemMapper.toDto(savedEntity))
+                .message("OrderItems created successfully")
+                .data(orderItemMapper.toDtoList(savedOrderItems))
                 .build();
     }
 
+
     @Override
     public HttpApiResponse<OrderItemDto> getOrderItemById(Long id) {
-        OrderItems orderItem = orderItemRepository.findByIdAndDeletedAtIsNull(id).orElseThrow(
+        OrderItem orderItem = orderItemRepository.findByIdAndDeletedAtIsNull(id).orElseThrow(
                 () -> new EntityNotFoundException("OrderItem not found"));
 
         return HttpApiResponse.<OrderItemDto>builder()
@@ -73,7 +109,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 
     @Override
     public HttpApiResponse<List<OrderItemDto>> getAllOrderItems() {
-        List<OrderItems> orderItemsList = orderItemRepository.findAllByDeletedAtIsNull().orElseThrow(
+        List<OrderItem> orderItemsList = orderItemRepository.findAllByDeletedAtIsNull().orElseThrow(
                 () -> new EntityNotFoundException("OrderItem List not found"));
 
         return HttpApiResponse.<List<OrderItemDto>>builder()
@@ -86,10 +122,10 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Override
     public HttpApiResponse<OrderItemDto> updateOrderById(Long id, OrderItemDto dto) {
 
-        OrderItems orderItem = orderItemRepository.findByIdAndDeletedAtIsNull(id).orElseThrow(
+        OrderItem orderItem = orderItemRepository.findByIdAndDeletedAtIsNull(id).orElseThrow(
                 () -> new EntityNotFoundException("OrderItem not found"));
 
-        OrderItems updateEntity = orderItemMapper.updateEntity(orderItem, dto);
+        OrderItem updateEntity = orderItemMapper.updateEntity(orderItem, dto);
 
         orderItemRepository.save(updateEntity);
 
@@ -103,7 +139,7 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Override
     public HttpApiResponse<String> deleteOrderById(Long id) {
 
-        OrderItems orderItem = orderItemRepository.findByIdAndDeletedAtIsNull(id).orElseThrow(
+        OrderItem orderItem = orderItemRepository.findByIdAndDeletedAtIsNull(id).orElseThrow(
                 () -> new EntityNotFoundException("OrderItem not found"));
 
         orderItem.setDeletedAt(LocalDateTime.now());
@@ -116,10 +152,4 @@ public class OrderItemServiceImpl implements OrderItemService {
                 .build();
     }
 
-    public BigDecimal validatePrice(BigDecimal price) {
-        if (price == null || price.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Price must be positive");
-        }
-        return price;
-    }
 }

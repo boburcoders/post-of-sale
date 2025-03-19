@@ -17,10 +17,10 @@ import java.util.Set;
 public class ProductController {
     private final ProductService productService;
 
-    @PostMapping("/{categoryId}")
+    @PostMapping
     @Operation(summary = "Create Product",description = "Create a Product with Category Id")
-    HttpApiResponse<ProductDto> createProduct(@PathVariable Long categoryId, @RequestBody ProductDto dto) {
-        return productService.createProduct(categoryId, dto);
+    HttpApiResponse<ProductDto> createProduct(@RequestBody ProductDto dto) {
+        return productService.createProduct(dto);
     }
 
     @GetMapping("/get-all")

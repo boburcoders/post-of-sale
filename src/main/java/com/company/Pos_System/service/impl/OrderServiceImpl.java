@@ -3,8 +3,9 @@ package com.company.Pos_System.service.impl;
 import com.company.Pos_System.dto.HttpApiResponse;
 import com.company.Pos_System.dto.OrdersDto;
 import com.company.Pos_System.enums.OrderStatus;
-import com.company.Pos_System.models.OrderItems;
-import com.company.Pos_System.models.Orders;
+import com.company.Pos_System.models.Order;
+import com.company.Pos_System.models.OrderItem;
+import com.company.Pos_System.models.Order;
 import com.company.Pos_System.models.Users;
 import com.company.Pos_System.repository.OrderItemRepository;
 import com.company.Pos_System.repository.OrderRepository;
@@ -22,6 +23,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -33,36 +35,20 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public HttpApiResponse<OrdersDto> createOrder(OrdersDto dto, List<Long> orderItemIds) {
+    public HttpApiResponse<OrdersDto> createOrder(OrdersDto dto) {
         Objects.requireNonNull(dto, "Order DTO cannot be null");
-        Objects.requireNonNull(orderItemIds, "Order Item IDs cannot be null or empty");
-
-        if (orderItemIds.isEmpty()) {
-            throw new IllegalArgumentException("Order must have at least one order item");
-        }
 
         Users user = userRepository.findByIdAndDeletedAtIsNull(dto.getUserId())
                 .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + dto.getUserId()));
 
-        List<OrderItems> orderItems = new ArrayList<>();
-        for (Long orderItemId : orderItemIds) {
-            orderItems.add(orderItemRepository.findByIdAndDeletedAtIsNull(orderItemId).orElseThrow(
-                    () -> new EntityNotFoundException("Order Item not found with ID: " + orderItemId)));
-        }
-        if (orderItems.isEmpty()) {
-            throw new EntityNotFoundException("No valid order items found for the given IDs");
-        }
-
-        Orders entity = orderMapper.toEntity(dto);
+        Order entity = orderMapper.toEntity(dto);
         entity.setUser(user);
-        entity.setOrderItems(orderItems);
-        entity.setStatus(OrderStatus.PENDING);
-        entity.setTotal(entity.calculateTotal());
 
-        // Update relationships
-        orderItems.forEach(item -> item.setOrder(entity));
+        BigDecimal newPrice = entity.getTotal() != null ? entity.getTotal() : BigDecimal.ZERO; // Ensure no null value
+        entity.setTotal(newPrice);
 
-        Orders savedEntity = orderRepository.save(entity);
+
+        Order savedEntity = orderRepository.save(entity);
 
         return HttpApiResponse.<OrdersDto>builder()
                 .status(HttpStatus.CREATED)
@@ -71,21 +57,22 @@ public class OrderServiceImpl implements OrderService {
                 .build();
     }
 
+
     @Override
     public HttpApiResponse<OrdersDto> getOrderById(Long id) {
-        Orders order = orderRepository.findByIdAndDeletedAtIsNull(id).orElseThrow(
+        Order order = orderRepository.findByIdAndDeletedAtIsNull(id).orElseThrow(
                 () -> new EntityNotFoundException("Order Not Found"));
 
         return HttpApiResponse.<OrdersDto>builder()
                 .status(HttpStatus.OK)
                 .message("OK")
-                .data(orderMapper.toDto(order))
+                .data(orderMapper.toDtoWithAllEntity(order))
                 .build();
     }
 
     @Override
     public HttpApiResponse<List<OrdersDto>> getAllOrders() {
-        List<Orders> ordersList = orderRepository.findAllByDeletedAtIsNull().orElseThrow(
+        List<Order> ordersList = orderRepository.findAllByDeletedAtIsNull().orElseThrow(
                 () -> new EntityNotFoundException("Orders Not Found"));
 
         return HttpApiResponse.<List<OrdersDto>>builder()
@@ -97,9 +84,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public HttpApiResponse<OrdersDto> updateOrderById(Long id, OrdersDto dto) {
-        Orders order = orderRepository.findByIdAndDeletedAtIsNull(id).orElseThrow(
+        Order order = orderRepository.findByIdAndDeletedAtIsNull(id).orElseThrow(
                 () -> new EntityNotFoundException("Order Not Found"));
-        Orders updatedEntity = orderMapper.updateEntity(dto, order);
+        Order updatedEntity = orderMapper.updateEntity(dto, order);
         orderRepository.save(updatedEntity);
 
         return HttpApiResponse.<OrdersDto>builder()
@@ -112,7 +99,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public HttpApiResponse<String> deleteOrderById(Long id) {
 
-        Orders order = orderRepository.findByIdAndDeletedAtIsNull(id).orElseThrow(
+        Order order = orderRepository.findByIdAndDeletedAtIsNull(id).orElseThrow(
                 () -> new EntityNotFoundException("Order Not Found"));
 
         order.setDeletedAt(LocalDateTime.now());
