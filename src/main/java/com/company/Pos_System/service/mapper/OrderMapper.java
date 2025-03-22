@@ -2,7 +2,9 @@ package com.company.Pos_System.service.mapper;
 
 import com.company.Pos_System.dto.OrdersDto;
 import com.company.Pos_System.models.Order;
+import com.company.Pos_System.models.OrderItem;
 import com.company.Pos_System.repository.OrderItemRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -42,14 +44,18 @@ public class OrderMapper {
                 .build();
     }
 
-    public Order updateEntity(OrdersDto dto, Order entity) {
+    public void updateEntity(OrdersDto dto, Order entity) {
         if (dto.getStatus() != null) {
             entity.setStatus(dto.getStatus());
         }
-//        if (dto.getOrderItemId() != null) {
-//            entity.setOrderItems(List.of(orderItemRepository.findByIdAndDeletedAtIsNull(dto.getOrderItemId()).get()));
-//        }
-        return entity;
+        if (dto.getOrderItemDtoList() != null && !dto.getOrderItemDtoList().isEmpty()) {
+            entity.getOrderItems().clear();
+            List<OrderItem> updatedItems = dto.getOrderItemDtoList().stream()
+                    .map(orderItemDto -> orderItemRepository.findByIdAndDeletedAtIsNull(orderItemDto.getId())
+                            .orElseThrow(() -> new EntityNotFoundException("Order Item Not Found")))
+                    .toList();
+            entity.getOrderItems().addAll(updatedItems);
+        }
     }
 
     public List<OrdersDto> toDtoList(List<Order> entityList) {

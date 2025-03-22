@@ -86,13 +86,14 @@ public class OrderServiceImpl implements OrderService {
     public HttpApiResponse<OrdersDto> updateOrderById(Long id, OrdersDto dto) {
         Order order = orderRepository.findByIdAndDeletedAtIsNull(id).orElseThrow(
                 () -> new EntityNotFoundException("Order Not Found"));
-        Order updatedEntity = orderMapper.updateEntity(dto, order);
-        orderRepository.save(updatedEntity);
+
+        orderMapper.updateEntity(dto, order);
+        order = orderRepository.save(order);
 
         return HttpApiResponse.<OrdersDto>builder()
                 .status(HttpStatus.OK)
                 .message("OK")
-                .data(orderMapper.toDto(updatedEntity))
+                .data(orderMapper.toDto(order))
                 .build();
     }
 

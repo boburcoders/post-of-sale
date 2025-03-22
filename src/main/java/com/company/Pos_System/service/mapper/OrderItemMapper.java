@@ -28,6 +28,7 @@ public class OrderItemMapper {
                 .id(entity.getId())
                 .orderId(entity.getOrder().getId())
                 .price(entity.getPrice())
+                .productId(entity.getProduct().getId())
                 .quantity(entity.getQuantity())
                 .createdAt(entity.getCreatedAt())
                 .build();
