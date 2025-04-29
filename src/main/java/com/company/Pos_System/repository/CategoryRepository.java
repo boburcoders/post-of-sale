@@ -17,10 +17,6 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
 
     Optional<Category> findByNameAndDeletedAtIsNull(String name);
 
-    boolean existsByIdAndDeletedAtIsNull(Long id);
-
-    boolean existsByNameAndDeletedAtIsNull(String name);
-
     Optional<List<Category>> findAllByDeletedAtIsNull();
 
 }

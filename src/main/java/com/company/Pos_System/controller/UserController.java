@@ -2,9 +2,14 @@ package com.company.Pos_System.controller;
 
 import com.company.Pos_System.dto.HttpApiResponse;
 import com.company.Pos_System.dto.UserDto;
+import com.company.Pos_System.service.JwtService;
 import com.company.Pos_System.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,6 +19,8 @@ import java.util.List;
 @RequestMapping("api/user")
 public class UserController {
     private final UserService userService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
 
 
     @PostMapping("/register")
@@ -24,8 +31,20 @@ public class UserController {
 
     @PostMapping("/login")
     @Operation(summary = "Login to Account", description = "Login with your Username and Password")
-    public HttpApiResponse<UserDto> userLogin(@RequestBody UserDto dto) {
-        return this.userService.userLogin(dto);
+    public HttpApiResponse<String> userLogin(@RequestBody UserDto dto) {
+        Authentication authentication = this.authenticationManager.
+                authenticate(new UsernamePasswordAuthenticationToken(dto.getUsername(), dto.getPassword()));
+        if (authentication.isAuthenticated()) {
+            String jwtToken = this.jwtService.getJwtToken(dto.getUsername());
+            return HttpApiResponse.<String>builder()
+                    .status(HttpStatus.ACCEPTED)
+                    .message(jwtToken)
+                    .build();
+        }
+        return HttpApiResponse.<String>builder()
+                .status(HttpStatus.UNAUTHORIZED)
+                .message("Invalid username or password")
+                .build();
     }
 
     @GetMapping("/by-id/{id}")

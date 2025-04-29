@@ -29,7 +29,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
-    private final OrderItemRepository orderItemRepository;
     private final UserRepository userRepository;
     private final OrderMapper orderMapper;
 
@@ -92,7 +91,7 @@ public class OrderServiceImpl implements OrderService {
 
         return HttpApiResponse.<OrdersDto>builder()
                 .status(HttpStatus.OK)
-                .message("OK")
+                .message("Order updated successfully")
                 .data(orderMapper.toDto(order))
                 .build();
     }
@@ -109,7 +108,7 @@ public class OrderServiceImpl implements OrderService {
 
         return HttpApiResponse.<String>builder()
                 .status(HttpStatus.OK)
-                .message("Order Deleted")
+                .message("Order deleted successfully")
                 .build();
     }
 }

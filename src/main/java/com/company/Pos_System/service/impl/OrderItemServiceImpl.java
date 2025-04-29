@@ -131,7 +131,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 
         return HttpApiResponse.<OrderItemDto>builder()
                 .status(HttpStatus.OK)
-                .message("OK")
+                .message("OrderItems updated successfully")
                 .data(orderItemMapper.toDto(updateEntity))
                 .build();
     }

@@ -42,7 +42,7 @@ public class CategoryController {
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete Category", description = "Delete a category by Id")
-    HttpApiResponse<CategoryDto> deleteCategoryById(@PathVariable Long id) {
+    HttpApiResponse<String> deleteCategoryById(@PathVariable Long id) {
         return this.categoryService.deleteCategoryById(id);
     }
 }

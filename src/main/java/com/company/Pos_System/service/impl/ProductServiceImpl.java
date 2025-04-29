@@ -23,7 +23,6 @@ import java.util.*;
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
-    private final OrderItemRepository orderItemRepository;
     private final ProductMapper productMapper;
 
     @Override
@@ -32,7 +31,7 @@ public class ProductServiceImpl implements ProductService {
         if (dto == null) {
             return HttpApiResponse.<ProductDto>builder()
                     .status(HttpStatus.BAD_REQUEST)
-                    .message("Category ID and Product DTO cannot be null")
+                    .message("Product DTO cannot be null")
                     .build();
         }
 
@@ -104,7 +103,7 @@ public class ProductServiceImpl implements ProductService {
 
         return HttpApiResponse.<ProductDto>builder()
                 .status(HttpStatus.OK)
-                .message("OK")
+                .message("Product updated successfully")
                 .data(productMapper.toDto(updatedEntity))
                 .build();
     }
@@ -121,7 +120,7 @@ public class ProductServiceImpl implements ProductService {
 
         return HttpApiResponse.<String>builder()
                 .status(HttpStatus.OK)
-                .message("Product deleted")
+                .message("Product deleted successfully")
                 .build();
     }
 }

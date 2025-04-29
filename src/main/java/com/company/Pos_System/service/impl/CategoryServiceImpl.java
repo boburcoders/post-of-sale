@@ -83,16 +83,16 @@ public class CategoryServiceImpl implements CategoryService {
 
         return HttpApiResponse.<CategoryDto>builder()
                 .status(HttpStatus.OK)
-                .message("OK")
+                .message("Category updated")
                 .data(categoryMapper.toDto(updatedEntity))
                 .build();
     }
 
     @Override
-    public HttpApiResponse<CategoryDto> deleteCategoryById(Long id) {
+    public HttpApiResponse<String> deleteCategoryById(Long id) {
         Optional<Category> optionalCategory = categoryRepository.findByIdAndDeletedAtIsNull(id);
         if (optionalCategory.isEmpty()) {
-            return HttpApiResponse.<CategoryDto>builder()
+            return HttpApiResponse.<String>builder()
                     .status(HttpStatus.NOT_FOUND)
                     .message("Category not found")
                     .build();
@@ -102,10 +102,9 @@ public class CategoryServiceImpl implements CategoryService {
 
         categoryRepository.save(optionalCategory.get());
 
-        return HttpApiResponse.<CategoryDto>builder()
+        return HttpApiResponse.<String>builder()
                 .status(HttpStatus.OK)
-                .message("OK")
-                .data(categoryMapper.toDto(optionalCategory.get()))
+                .message("Category deleted")
                 .build();
     }
 }
