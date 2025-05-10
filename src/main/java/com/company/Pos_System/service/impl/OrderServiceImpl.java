@@ -2,14 +2,11 @@ package com.company.Pos_System.service.impl;
 
 import com.company.Pos_System.dto.HttpApiResponse;
 import com.company.Pos_System.dto.OrdersDto;
-import com.company.Pos_System.enums.OrderStatus;
+import com.company.Pos_System.models.*;
 import com.company.Pos_System.models.Order;
-import com.company.Pos_System.models.OrderItem;
-import com.company.Pos_System.models.Order;
-import com.company.Pos_System.models.Users;
-import com.company.Pos_System.repository.OrderItemRepository;
 import com.company.Pos_System.repository.OrderRepository;
 import com.company.Pos_System.repository.UserRepository;
+import com.company.Pos_System.repository.WareHouseRepository;
 import com.company.Pos_System.service.OrderService;
 import com.company.Pos_System.service.mapper.OrderMapper;
 import jakarta.persistence.EntityNotFoundException;
@@ -20,16 +17,15 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
+    private final WareHouseRepository wareHouseRepository;
     private final OrderMapper orderMapper;
 
     @Override
@@ -39,9 +35,12 @@ public class OrderServiceImpl implements OrderService {
 
         Users user = userRepository.findByIdAndDeletedAtIsNull(dto.getUserId())
                 .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + dto.getUserId()));
+        WareHouse wareHouse = wareHouseRepository.findByIdAndDeletedAtIsNull(dto.getWarehouseId())
+                .orElseThrow(() -> new EntityNotFoundException("Warehouse not found with ID: " + dto.getWarehouseId()));
 
         Order entity = orderMapper.toEntity(dto);
         entity.setUser(user);
+        entity.setWarehouse(wareHouse);
 
         BigDecimal newPrice = entity.getTotal() != null ? entity.getTotal() : BigDecimal.ZERO; // Ensure no null value
         entity.setTotal(newPrice);
@@ -50,6 +49,7 @@ public class OrderServiceImpl implements OrderService {
         Order savedEntity = orderRepository.save(entity);
 
         return HttpApiResponse.<OrdersDto>builder()
+                .success(true)
                 .status(HttpStatus.CREATED)
                 .message("Order created successfully")
                 .data(orderMapper.toDto(savedEntity))
@@ -63,6 +63,7 @@ public class OrderServiceImpl implements OrderService {
                 () -> new EntityNotFoundException("Order Not Found"));
 
         return HttpApiResponse.<OrdersDto>builder()
+                .success(true)
                 .status(HttpStatus.OK)
                 .message("OK")
                 .data(orderMapper.toDtoWithAllEntity(order))
@@ -75,6 +76,7 @@ public class OrderServiceImpl implements OrderService {
                 () -> new EntityNotFoundException("Orders Not Found"));
 
         return HttpApiResponse.<List<OrdersDto>>builder()
+                .success(true)
                 .status(HttpStatus.OK)
                 .message("OK")
                 .data(orderMapper.toDtoList(ordersList))
@@ -90,6 +92,7 @@ public class OrderServiceImpl implements OrderService {
         order = orderRepository.save(order);
 
         return HttpApiResponse.<OrdersDto>builder()
+                .success(true)
                 .status(HttpStatus.OK)
                 .message("Order updated successfully")
                 .data(orderMapper.toDto(order))
@@ -107,6 +110,7 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.save(order);
 
         return HttpApiResponse.<String>builder()
+                .success(true)
                 .status(HttpStatus.OK)
                 .message("Order deleted successfully")
                 .build();

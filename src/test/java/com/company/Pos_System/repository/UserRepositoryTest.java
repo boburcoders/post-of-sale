@@ -1,6 +1,6 @@
 package com.company.Pos_System.repository;
 
-import com.company.Pos_System.enums.UserRole;
+import com.company.Pos_System.models.enums.UserRole;
 import com.company.Pos_System.models.Users;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 class UserRepositoryTest {

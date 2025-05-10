@@ -34,6 +34,7 @@ public class CategoryServiceImpl implements CategoryService {
         categoryRepository.save(entity);
 
         return HttpApiResponse.<CategoryDto>builder()
+                .success(true)
                 .status(HttpStatus.CREATED)
                 .message("Category created")
                 .data(categoryMapper.toDto(entity))
@@ -50,6 +51,7 @@ public class CategoryServiceImpl implements CategoryService {
                     .build();
         }
         return HttpApiResponse.<CategoryDto>builder()
+                .success(true)
                 .status(HttpStatus.OK)
                 .message("OK")
                 .data(categoryMapper.toDto(optionalCategory.get()))
@@ -62,6 +64,7 @@ public class CategoryServiceImpl implements CategoryService {
                 () -> new RuntimeException("Categories not found"));
 
         return HttpApiResponse.<List<CategoryDto>>builder()
+                .success(true)
                 .status(HttpStatus.OK)
                 .message("OK")
                 .data(categoryMapper.toDtoList(categoryList))
@@ -82,6 +85,7 @@ public class CategoryServiceImpl implements CategoryService {
         categoryRepository.save(updatedEntity);
 
         return HttpApiResponse.<CategoryDto>builder()
+                .success(true)
                 .status(HttpStatus.OK)
                 .message("Category updated")
                 .data(categoryMapper.toDto(updatedEntity))
@@ -103,6 +107,7 @@ public class CategoryServiceImpl implements CategoryService {
         categoryRepository.save(optionalCategory.get());
 
         return HttpApiResponse.<String>builder()
+                .success(true)
                 .status(HttpStatus.OK)
                 .message("Category deleted")
                 .build();

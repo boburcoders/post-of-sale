@@ -4,8 +4,11 @@ import com.company.Pos_System.dto.HttpApiResponse;
 import com.company.Pos_System.dto.ProductDto;
 import com.company.Pos_System.models.Category;
 import com.company.Pos_System.models.Product;
+import com.company.Pos_System.models.WareHouse;
 import com.company.Pos_System.repository.CategoryRepository;
+import com.company.Pos_System.repository.OrderItemRepository;
 import com.company.Pos_System.repository.ProductRepository;
+import com.company.Pos_System.repository.WareHouseRepository;
 import com.company.Pos_System.service.mapper.ProductMapper;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,26 +31,36 @@ class ProductServiceImplTest {
     CategoryRepository categoryRepository;
     @Mock
     ProductMapper productMapper;
+    @Mock
+    WareHouseRepository wareHouseRepository;
+
     ProductServiceImpl productService;
     Product product;
     ProductDto productDto;
     Category category;
+    WareHouse wareHouse;
 
     @BeforeEach
     void setUp() {
+        wareHouse = new WareHouse();
         product = new Product();
         productDto = new ProductDto();
         category = new Category();
-        productService = new ProductServiceImpl(productRepository, categoryRepository, productMapper);
+
+        productService = new ProductServiceImpl(productRepository, categoryRepository, wareHouseRepository, productMapper);
     }
 
     @Test
     void createProductForSuccess() {
+        wareHouse.setId(1L);
         productDto.setId(1L);
         productDto.setCategoryId(1L);
+        productDto.setWarehouseId(1L);
+        product.setWareHouse(wareHouse);
         when(categoryRepository.findByIdAndDeletedAtIsNull(1L)).thenReturn(Optional.of(category));
         when(productMapper.toEntity(productDto)).thenReturn(product);
         when(productRepository.save(product)).thenReturn(product);
+        when(wareHouseRepository.findByIdAndDeletedAtIsNull(product.getWareHouse().getId())).thenReturn(Optional.of(wareHouse));
 
         HttpApiResponse<ProductDto> response = productService.createProduct(productDto);
 

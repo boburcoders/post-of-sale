@@ -1,6 +1,6 @@
 package com.company.Pos_System.dto;
 
-import com.company.Pos_System.enums.UserRole;
+import com.company.Pos_System.models.enums.UserRole;
 import lombok.*;
 
 import java.util.ArrayList;

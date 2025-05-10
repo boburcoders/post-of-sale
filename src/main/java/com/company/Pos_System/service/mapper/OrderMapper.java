@@ -29,6 +29,7 @@ public class OrderMapper {
                 .userId(entity.getUser().getId())
                 .total(entity.getTotal())
                 .status(entity.getStatus())
+                .warehouseId(entity.getWarehouse().getId())
                 .createdAt(entity.getCreatedAt())
                 .build();
     }

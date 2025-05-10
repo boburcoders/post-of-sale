@@ -2,7 +2,7 @@ package com.company.Pos_System.service.impl;
 
 import com.company.Pos_System.dto.HttpApiResponse;
 import com.company.Pos_System.dto.UserDto;
-import com.company.Pos_System.enums.UserRole;
+import com.company.Pos_System.models.enums.UserRole;
 import com.company.Pos_System.models.Users;
 import com.company.Pos_System.repository.UserRepository;
 import com.company.Pos_System.service.mapper.UserMapper;

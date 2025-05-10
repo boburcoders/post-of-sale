@@ -1,9 +1,8 @@
 package com.company.Pos_System.repository;
 
-import com.company.Pos_System.enums.OrderStatus;
-import com.company.Pos_System.enums.UserRole;
+import com.company.Pos_System.models.enums.OrderStatus;
+import com.company.Pos_System.models.enums.UserRole;
 import com.company.Pos_System.models.*;
-import org.checkerframework.checker.units.qual.A;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,14 +31,23 @@ class OrderRepositoryTest {
     @Autowired
     CategoryRepository categoryRepository;
 
+    @Autowired
+    WareHouseRepository wareHouseRepository;
+
     Product product;
     Order order;
     Users user;
     OrderItem orderItem;
     Category category;
+    WareHouse wareHouse;
 
     @BeforeEach
     void setUp() {
+        wareHouse = WareHouse.builder()
+                .name("Warehouse Name")
+                .location("Location")
+                .build();
+        wareHouseRepository.save(wareHouse);
 
         user = Users.builder()
                 .fullName("Full Name")
@@ -60,6 +68,7 @@ class OrderRepositoryTest {
                 .serial("Serial")
                 .price(BigDecimal.valueOf(122))
                 .category(category)
+                .wareHouse(wareHouse)
                 .description("Description")
                 .build();
         productRepository.save(product);
@@ -67,6 +76,7 @@ class OrderRepositoryTest {
         order = Order.builder()
                 .status(OrderStatus.PENDING)
                 .user(user)
+                .warehouse(wareHouse)
                 .total(BigDecimal.valueOf(1223))
                 .build();
         orderRepository.save(order);

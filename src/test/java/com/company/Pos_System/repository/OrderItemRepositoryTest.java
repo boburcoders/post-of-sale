@@ -1,7 +1,7 @@
 package com.company.Pos_System.repository;
 
-import com.company.Pos_System.enums.OrderStatus;
-import com.company.Pos_System.enums.UserRole;
+import com.company.Pos_System.models.enums.OrderStatus;
+import com.company.Pos_System.models.enums.UserRole;
 import com.company.Pos_System.models.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,15 +32,23 @@ class OrderItemRepositoryTest {
     @Autowired
     CategoryRepository categoryRepository;
 
+    @Autowired
+    WareHouseRepository wareHouseRepository;
+
     Product product;
     Order order;
     Users user;
     OrderItem orderItem;
     Category category;
+    WareHouse wareHouse;
 
     @BeforeEach
     void setUp() {
-
+        wareHouse = WareHouse.builder()
+                .name("Warehouse Name")
+                .location("Location")
+                .build();
+        wareHouseRepository.save(wareHouse);
         user = Users.builder()
                 .fullName("Full Name")
                 .username("activeUser")
@@ -60,6 +68,7 @@ class OrderItemRepositoryTest {
                 .serial("Serial")
                 .price(BigDecimal.valueOf(122))
                 .category(category)
+                .wareHouse(wareHouse)
                 .description("Description")
                 .build();
         productRepository.save(product);
@@ -68,6 +77,7 @@ class OrderItemRepositoryTest {
                 .status(OrderStatus.PENDING)
                 .user(user)
                 .total(BigDecimal.valueOf(1223))
+                .warehouse(wareHouse)
                 .build();
         orderRepository.save(order);
 

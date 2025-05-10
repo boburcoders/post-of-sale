@@ -4,8 +4,10 @@ import com.company.Pos_System.dto.HttpApiResponse;
 import com.company.Pos_System.dto.OrdersDto;
 import com.company.Pos_System.models.Order;
 import com.company.Pos_System.models.Users;
+import com.company.Pos_System.models.WareHouse;
 import com.company.Pos_System.repository.OrderRepository;
 import com.company.Pos_System.repository.UserRepository;
+import com.company.Pos_System.repository.WareHouseRepository;
 import com.company.Pos_System.service.mapper.OrderMapper;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,26 +38,34 @@ class OrderServiceImplTest {
     @Mock
     UserRepository userRepository;
 
+    @Mock
+    WareHouseRepository wareHouseRepository;
+
     OrderServiceImpl orderService;
     OrdersDto ordersDto;
     Order order;
     Users user;
+    WareHouse wareHouse;
 
     @BeforeEach
     void setUp() {
+        wareHouse = new WareHouse();
         user = new Users();
         ordersDto = new OrdersDto();
         order = new Order();
-        orderService = new OrderServiceImpl(orderRepository, userRepository, orderMapper);
+        orderService = new OrderServiceImpl(orderRepository, userRepository, wareHouseRepository, orderMapper);
     }
 
     @Test
     void createOrderForSuccess() {
+        ordersDto.setWarehouseId(1L);
         ordersDto.setUserId(1L);
         when(userRepository.findByIdAndDeletedAtIsNull(anyLong())).thenReturn(Optional.of(user));
+        when(wareHouseRepository.findByIdAndDeletedAtIsNull(anyLong())).thenReturn(Optional.of(wareHouse));
         when(orderMapper.toEntity(ordersDto)).thenReturn(order);
         when(orderRepository.save(order)).thenReturn(order);
         when(orderMapper.toDto(order)).thenReturn(ordersDto);
+
 
         HttpApiResponse<OrdersDto> response = orderService.createOrder(ordersDto);
 

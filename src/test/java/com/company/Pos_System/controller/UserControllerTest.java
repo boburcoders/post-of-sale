@@ -2,7 +2,7 @@ package com.company.Pos_System.controller;
 
 import com.company.Pos_System.dto.HttpApiResponse;
 import com.company.Pos_System.dto.UserDto;
-import com.company.Pos_System.enums.UserRole;
+import com.company.Pos_System.models.enums.UserRole;
 import com.company.Pos_System.models.Users;
 import com.company.Pos_System.service.impl.UserServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;

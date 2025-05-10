@@ -1,6 +1,6 @@
 package com.company.Pos_System.models;
 
-import com.company.Pos_System.enums.UserRole;
+import com.company.Pos_System.models.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.*;
 

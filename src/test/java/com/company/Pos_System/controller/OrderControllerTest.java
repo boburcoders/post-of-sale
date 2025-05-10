@@ -2,8 +2,8 @@ package com.company.Pos_System.controller;
 
 import com.company.Pos_System.dto.HttpApiResponse;
 import com.company.Pos_System.dto.OrdersDto;
-import com.company.Pos_System.enums.OrderStatus;
-import com.company.Pos_System.enums.UserRole;
+import com.company.Pos_System.models.enums.OrderStatus;
+import com.company.Pos_System.models.enums.UserRole;
 import com.company.Pos_System.models.Order;
 import com.company.Pos_System.models.Users;
 import com.company.Pos_System.service.impl.OrderServiceImpl;
@@ -25,7 +25,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 

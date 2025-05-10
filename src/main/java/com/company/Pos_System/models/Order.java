@@ -1,8 +1,7 @@
 package com.company.Pos_System.models;
 
-import com.company.Pos_System.enums.OrderStatus;
+import com.company.Pos_System.models.enums.OrderStatus;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -21,6 +20,11 @@ public class Order extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private Users user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "warehouse_id", nullable = false)
+    private WareHouse warehouse;
+
 
     @Column(nullable = false)
     private BigDecimal total = BigDecimal.ZERO;

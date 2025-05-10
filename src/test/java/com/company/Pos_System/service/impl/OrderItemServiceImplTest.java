@@ -2,11 +2,14 @@ package com.company.Pos_System.service.impl;
 
 import com.company.Pos_System.dto.HttpApiResponse;
 import com.company.Pos_System.dto.OrderItemDto;
+import com.company.Pos_System.dto.ProductInventoryDto;
 import com.company.Pos_System.models.Order;
 import com.company.Pos_System.models.OrderItem;
 import com.company.Pos_System.models.Product;
+import com.company.Pos_System.models.ProductInventory;
 import com.company.Pos_System.repository.OrderItemRepository;
 import com.company.Pos_System.repository.OrderRepository;
+import com.company.Pos_System.repository.ProductInventoryRepository;
 import com.company.Pos_System.repository.ProductRepository;
 import com.company.Pos_System.service.mapper.OrderItemMapper;
 import jakarta.persistence.EntityNotFoundException;
@@ -35,6 +38,8 @@ class OrderItemServiceImplTest {
 
     @Mock
     ProductRepository productRepository;
+    @Mock
+    ProductInventoryRepository productInventoryRepository;
 
     OrderItemServiceImpl orderItemService;
 
@@ -42,15 +47,20 @@ class OrderItemServiceImplTest {
     OrderItemDto orderItemDto;
     Product product;
     Order order;
+    ProductInventory productInventory;
+    ProductInventoryDto productInventoryDto;
 
 
     @BeforeEach
     void setUp() {
+        productInventory = new ProductInventory();
+        productInventoryDto = new ProductInventoryDto();
         order = new Order();
         product = new Product();
         orderItem = new OrderItem();
         orderItemDto = new OrderItemDto();
-        orderItemService = new OrderItemServiceImpl(orderItemRepository, productRepository, orderRepository, orderItemMapper);
+        orderItemService = new OrderItemServiceImpl(orderItemRepository, productRepository,
+                orderRepository, orderItemMapper, productInventoryRepository);
     }
 
     @Test
@@ -58,6 +68,9 @@ class OrderItemServiceImplTest {
         product.setId(1L);
         product.setPrice(BigDecimal.TEN);
         order.setId(1L);
+        productInventory.setProduct(product);
+        productInventory.setWarehouse(order.getWarehouse());
+        productInventory.setQuantity(10);
         orderItemDto.setProductId(product.getId());
         orderItemDto.setOrderId(order.getId());
 
@@ -66,6 +79,7 @@ class OrderItemServiceImplTest {
         when(orderItemMapper.toEntity(orderItemDto)).thenReturn(orderItem);
         when(orderItemRepository.saveAll(List.of(orderItem))).thenReturn(List.of(orderItem));
         when(orderItemMapper.toDtoList(List.of(orderItem))).thenReturn(List.of(orderItemDto));
+        when(productInventoryRepository.findByProductAndWarehouse(product, order.getWarehouse())).thenReturn(Optional.of(productInventory));
 
         HttpApiResponse<List<OrderItemDto>> response = orderItemService.createOrderItem(List.of(orderItemDto));
 

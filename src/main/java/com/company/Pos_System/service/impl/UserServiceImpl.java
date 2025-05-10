@@ -39,6 +39,7 @@ public class UserServiceImpl implements UserService {
         this.userRepository.saveAndFlush(user);
 
         return HttpApiResponse.<UserDto>builder()
+                .success(true)
                 .status(HttpStatus.CREATED)
                 .message("User registered successfully")
                 .data(this.userMapper.ToDto(user))
@@ -56,6 +57,7 @@ public class UserServiceImpl implements UserService {
                     .build();
         }
         return HttpApiResponse.<UserDto>builder()
+                .success(true)
                 .status(HttpStatus.OK)
                 .message("Login successfully")
                 .data(this.userMapper.ToDto(user))
@@ -71,6 +73,7 @@ public class UserServiceImpl implements UserService {
         UserDto dto = userMapper.ToDto(user);
 
         return HttpApiResponse.<UserDto>builder()
+                .success(true)
                 .status(HttpStatus.OK)
                 .message("OK")
                 .data(dto)
@@ -86,6 +89,7 @@ public class UserServiceImpl implements UserService {
         List<UserDto> userDtoList = this.userMapper.ToDtoList(usersList);
 
         return HttpApiResponse.<List<UserDto>>builder()
+                .success(true)
                 .status(HttpStatus.OK)
                 .message("OK")
                 .data(userDtoList)
@@ -98,6 +102,7 @@ public class UserServiceImpl implements UserService {
                 () -> new EntityNotFoundException("Users not found")));
         List<UserDto> userDtoList = this.userMapper.ToDtoList(usersList);
         return HttpApiResponse.<List<UserDto>>builder()
+                .success(true)
                 .status(HttpStatus.OK)
                 .message("OK")
                 .data(userDtoList)
@@ -114,6 +119,7 @@ public class UserServiceImpl implements UserService {
         userRepository.saveAndFlush(updatedUser);
 
         return HttpApiResponse.<UserDto>builder()
+                .success(true)
                 .status(HttpStatus.OK)
                 .message("User updated successfully")
                 .data(this.userMapper.ToDto(updatedUser))
@@ -130,6 +136,7 @@ public class UserServiceImpl implements UserService {
         userRepository.saveAndFlush(updatedUser);
 
         return HttpApiResponse.<UserDto>builder()
+                .success(true)
                 .status(HttpStatus.OK)
                 .message("User updated successfully")
                 .data(this.userMapper.ToDto(updatedUser))
@@ -146,6 +153,7 @@ public class UserServiceImpl implements UserService {
         this.userRepository.saveAndFlush(user);
 
         return HttpApiResponse.<String>builder()
+                .success(true)
                 .status(HttpStatus.OK)
                 .message("User deleted successfully")
                 .build();

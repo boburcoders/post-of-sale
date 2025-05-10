@@ -2,17 +2,17 @@ package com.company.Pos_System.service.impl;
 
 import com.company.Pos_System.dto.HttpApiResponse;
 import com.company.Pos_System.dto.OrderItemDto;
-import com.company.Pos_System.models.Order;
-import com.company.Pos_System.models.OrderItem;
-import com.company.Pos_System.models.Product;
+import com.company.Pos_System.models.*;
 import com.company.Pos_System.repository.OrderItemRepository;
 import com.company.Pos_System.repository.OrderRepository;
+import com.company.Pos_System.repository.ProductInventoryRepository;
 import com.company.Pos_System.repository.ProductRepository;
 import com.company.Pos_System.service.OrderItemService;
 import com.company.Pos_System.service.mapper.OrderItemMapper;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -32,6 +32,7 @@ public class OrderItemServiceImpl implements OrderItemService {
     private final ProductRepository productRepository;
     private final OrderRepository orderRepository;
     private final OrderItemMapper orderItemMapper;
+    private final ProductInventoryRepository productInventoryRepository;
 
     @Override
     @Transactional
@@ -59,6 +60,23 @@ public class OrderItemServiceImpl implements OrderItemService {
                     ? dto.getQuantity()
                     : BigDecimal.ONE;
 
+            WareHouse warehouse = product.getWareHouse(); // Or fetch by dto.getWarehouseId()
+
+            ProductInventory inventory = productInventoryRepository
+                    .findByProductAndWarehouse(product, warehouse)
+                    .orElseThrow(() -> new EntityNotFoundException("Inventory not found for product: " + product.getName()));
+
+            if (BigDecimal.valueOf(inventory.getQuantity()).compareTo(quantity) < 0) {
+                throw new RuntimeException("Not enough stock for product: " + product.getName());
+            }
+
+            System.out.println("Before: " + inventory.getQuantity());
+            inventory.setQuantity(inventory.getQuantity() - quantity.intValue());
+            System.out.println("After: " + inventory.getQuantity());
+            productInventoryRepository.save(inventory);
+
+
+
             BigDecimal totalPrice = product.getPrice().multiply(quantity);
 
             BigDecimal orderTotalPrice = (order.getTotal() != null)
@@ -74,7 +92,6 @@ public class OrderItemServiceImpl implements OrderItemService {
 
             orderItemsToSave.add(entity);
 
-
             List<OrderItem> existingItems = order.getOrderItems() != null ? order.getOrderItems() : new ArrayList<>();
             existingItems.add(entity);
             order.setOrderItems(existingItems);
@@ -88,11 +105,13 @@ public class OrderItemServiceImpl implements OrderItemService {
         orderRepository.saveAll(ordersToSave);
 
         return HttpApiResponse.<List<OrderItemDto>>builder()
+                .success(true)
                 .status(HttpStatus.CREATED)
                 .message("OrderItems created successfully")
                 .data(orderItemMapper.toDtoList(savedOrderItems))
                 .build();
     }
+
 
 
     @Override
@@ -101,6 +120,7 @@ public class OrderItemServiceImpl implements OrderItemService {
                 () -> new EntityNotFoundException("OrderItem not found"));
 
         return HttpApiResponse.<OrderItemDto>builder()
+                .success(true)
                 .status(HttpStatus.OK)
                 .message("OK")
                 .data(orderItemMapper.toDto(orderItem))
@@ -113,6 +133,7 @@ public class OrderItemServiceImpl implements OrderItemService {
                 () -> new EntityNotFoundException("OrderItem List not found"));
 
         return HttpApiResponse.<List<OrderItemDto>>builder()
+                .success(true)
                 .status(HttpStatus.OK)
                 .message("OK")
                 .data(orderItemMapper.toDtoList(orderItemsList))
@@ -130,6 +151,7 @@ public class OrderItemServiceImpl implements OrderItemService {
         orderItemRepository.save(updateEntity);
 
         return HttpApiResponse.<OrderItemDto>builder()
+                .success(true)
                 .status(HttpStatus.OK)
                 .message("OrderItems updated successfully")
                 .data(orderItemMapper.toDto(updateEntity))
@@ -147,6 +169,7 @@ public class OrderItemServiceImpl implements OrderItemService {
         orderItemRepository.save(orderItem);
 
         return HttpApiResponse.<String>builder()
+                .success(true)
                 .status(HttpStatus.OK)
                 .message("OrderItem deleted successfully")
                 .build();

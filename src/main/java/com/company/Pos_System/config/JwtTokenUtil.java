@@ -1,4 +1,4 @@
-package com.company.Pos_System.service;
+package com.company.Pos_System.config;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -20,11 +20,11 @@ import java.util.Map;
 import java.util.function.Function;
 
 @Service
-public class JwtService {
+public class JwtTokenUtil {
     @Value(value = "${secret.key}")
     private String secretkey;
 
-    public JwtService() {
+    public JwtTokenUtil() {
         this.secretkey = generateKey();
     }
 

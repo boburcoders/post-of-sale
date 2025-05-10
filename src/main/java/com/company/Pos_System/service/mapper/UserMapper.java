@@ -1,7 +1,6 @@
 package com.company.Pos_System.service.mapper;
 
 import com.company.Pos_System.dto.UserDto;
-import com.company.Pos_System.enums.UserRole;
 import com.company.Pos_System.models.Users;
 import org.springframework.stereotype.Component;
 

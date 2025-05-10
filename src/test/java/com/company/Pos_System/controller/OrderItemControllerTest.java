@@ -2,7 +2,7 @@ package com.company.Pos_System.controller;
 
 import com.company.Pos_System.dto.HttpApiResponse;
 import com.company.Pos_System.dto.OrderItemDto;
-import com.company.Pos_System.enums.OrderStatus;
+import com.company.Pos_System.models.enums.OrderStatus;
 import com.company.Pos_System.models.Order;
 import com.company.Pos_System.models.OrderItem;
 import com.company.Pos_System.models.Product;
@@ -27,7 +27,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import java.math.BigDecimal;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 

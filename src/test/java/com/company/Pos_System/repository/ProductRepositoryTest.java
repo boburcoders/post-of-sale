@@ -2,6 +2,7 @@ package com.company.Pos_System.repository;
 
 import com.company.Pos_System.models.Category;
 import com.company.Pos_System.models.Product;
+import com.company.Pos_System.models.WareHouse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -21,13 +22,21 @@ class ProductRepositoryTest {
 
     @Autowired
     CategoryRepository categoryRepository;
+    @Autowired
+    WareHouseRepository wareHouseRepository;
     @Mock
     Category category;
 
     Product product;
+    WareHouse wareHouse;
 
     @BeforeEach
     void setUp() {
+        wareHouse = WareHouse.builder()
+                .name("Warehouse Name")
+                .location("Location")
+                .build();
+        wareHouseRepository.save(wareHouse);
         category = Category.builder()
                 .name("categoryName")
                 .description("description")
@@ -38,6 +47,7 @@ class ProductRepositoryTest {
                 .name("productName")
                 .serial("serial")
                 .price(BigDecimal.valueOf(122))
+                .wareHouse(wareHouse)
                 .description("description")
                 .build();
         productRepository.save(product);
