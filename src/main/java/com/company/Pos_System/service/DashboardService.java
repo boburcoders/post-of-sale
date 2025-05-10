@@ -1,10 +1,9 @@
 package com.company.Pos_System.service;
 
-import com.company.Pos_System.dto.HttpApiResponse;
-import com.company.Pos_System.dto.RevenueStatsDto;
-import com.company.Pos_System.dto.SalesTodayDto;
-import com.company.Pos_System.dto.TotalOrdersDto;
+import com.company.Pos_System.dto.*;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public interface DashboardService {
@@ -13,4 +12,10 @@ public interface DashboardService {
     HttpApiResponse<SalesTodayDto> getSalesTodayStats();
 
     HttpApiResponse<TotalOrdersDto> getTotalOrdersStats();
+
+    HttpApiResponse<List<SalesOverviewDto>> getSalesOverview();
+
+    HttpApiResponse<List<SalesByCategoryDto>> getSalesByCategory();
+
+    HttpApiResponse<List<TopSellingProductDto>> getTopSellingProducts();
 }

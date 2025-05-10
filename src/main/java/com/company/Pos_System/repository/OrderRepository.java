@@ -110,5 +110,49 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             """, nativeQuery = true)
     List<Object[]> getTotalOrdersStatsRaw();
 
+    @Query(value = """
+            SELECT TO_CHAR(created_at, 'Mon') AS month,
+                   SUM(total) AS revenue
+            FROM orders
+            WHERE EXTRACT(YEAR FROM created_at) = EXTRACT(YEAR FROM CURRENT_DATE)
+              AND deleted_at IS NULL
+            GROUP BY TO_CHAR(created_at, 'Mon'), EXTRACT(MONTH FROM created_at)
+            ORDER BY EXTRACT(MONTH FROM created_at)
+            """, nativeQuery = true)
+    List<Object[]> getSalesOverview();
+
+    @Query(value = """
+            SELECT
+                c.name AS category,
+                ROUND(SUM(oi.price * oi.quantity) * 100.0 /
+                    (SELECT SUM(oi2.price * oi2.quantity)
+                     FROM order_items oi2
+                     JOIN orders o2 ON oi2.order_id = o2.id
+                     WHERE o2.deleted_at IS NULL AND oi2.deleted_at IS NULL), 2) AS percentage
+            FROM order_items oi
+            JOIN orders o ON oi.order_id = o.id
+            JOIN products p ON oi.product_id = p.id
+            JOIN category c ON p.category_id = c.id
+            WHERE o.deleted_at IS NULL AND oi.deleted_at IS NULL
+            GROUP BY c.name
+            ORDER BY percentage DESC
+            """, nativeQuery = true)
+    List<Object[]> getSalesByCategory();
+
+
+    @Query(value = """
+            SELECT
+                p.name,
+                SUM(oi.quantity) AS sales
+            FROM order_items oi
+            JOIN products p ON oi.product_id = p.id
+            JOIN orders o ON oi.order_id = o.id
+            WHERE o.deleted_at IS NULL AND oi.deleted_at IS NULL
+            GROUP BY p.name
+            ORDER BY sales DESC
+            LIMIT 5
+            """, nativeQuery = true)
+    List<Object[]> getTopSellingProducts();
+
 
 }

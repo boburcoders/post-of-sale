@@ -1,9 +1,6 @@
 package com.company.Pos_System.service.impl;
 
-import com.company.Pos_System.dto.HttpApiResponse;
-import com.company.Pos_System.dto.RevenueStatsDto;
-import com.company.Pos_System.dto.SalesTodayDto;
-import com.company.Pos_System.dto.TotalOrdersDto;
+import com.company.Pos_System.dto.*;
 import com.company.Pos_System.repository.OrderRepository;
 import com.company.Pos_System.service.DashboardService;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -99,4 +97,69 @@ public class DashboardServiceImpl implements DashboardService {
         return new RevenueStatsDto(totalRevenue, growth, indicator);
     }
 
+    @Override
+    public HttpApiResponse<List<SalesOverviewDto>> getSalesOverview() {
+        try {
+            List<Object[]> rows = orderRepository.getSalesOverview();
+            List<SalesOverviewDto> collect = rows.stream()
+                    .map(row -> new SalesOverviewDto(
+                            (String) row[0],
+                            row[1] != null ? ((Number) row[1]).doubleValue() : 0.0
+                    ))
+                    .toList();
+            return HttpApiResponse.<List<SalesOverviewDto>>builder()
+                    .success(true)
+                    .status(HttpStatus.OK)
+                    .message("OK")
+                    .data(collect)
+                    .build();
+
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage(), e.getCause());
+        }
+    }
+
+    @Override
+    public HttpApiResponse<List<SalesByCategoryDto>> getSalesByCategory() {
+        try {
+            List<Object[]> rows = orderRepository.getSalesByCategory();
+            List<SalesByCategoryDto> list = rows.stream()
+                    .map(row -> new SalesByCategoryDto(
+                            (String) row[0],
+                            row[1] != null ? ((Number) row[1]).doubleValue() : 0.0
+                    ))
+                    .toList();
+
+            return HttpApiResponse.<List<SalesByCategoryDto>>builder()
+                    .success(true)
+                    .status(HttpStatus.OK)
+                    .message("OK")
+                    .data(list)
+                    .build();
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage(), e.getCause());
+        }
+    }
+
+    @Override
+    public HttpApiResponse<List<TopSellingProductDto>> getTopSellingProducts() {
+        try {
+            List<Object[]> rows = orderRepository.getTopSellingProducts();
+            List<TopSellingProductDto> topSellingProductDtos = rows.stream()
+                    .map(row -> new TopSellingProductDto(
+                            (String) row[0],
+                            ((Number) row[1]).intValue()
+                    ))
+                    .toList();
+
+            return HttpApiResponse.<List<TopSellingProductDto>>builder()
+                    .success(true)
+                    .status(HttpStatus.OK)
+                    .message("OK")
+                    .data(topSellingProductDtos)
+                    .build();
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage(), e.getCause());
+        }
+    }
 }

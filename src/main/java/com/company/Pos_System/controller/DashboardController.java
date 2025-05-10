@@ -1,9 +1,6 @@
 package com.company.Pos_System.controller;
 
-import com.company.Pos_System.dto.HttpApiResponse;
-import com.company.Pos_System.dto.RevenueStatsDto;
-import com.company.Pos_System.dto.SalesTodayDto;
-import com.company.Pos_System.dto.TotalOrdersDto;
+import com.company.Pos_System.dto.*;
 import com.company.Pos_System.service.DashboardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -11,6 +8,8 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -36,4 +35,21 @@ public class DashboardController {
     public HttpApiResponse<TotalOrdersDto> getTotalOrdersStats() {
         return dashboardService.getTotalOrdersStats();
     }
+
+    @GetMapping("/sales-overview")
+    public HttpApiResponse<List<SalesOverviewDto>> getSalesOverview() {
+        return dashboardService.getSalesOverview();
+    }
+
+    @GetMapping("/sales-by-category")
+    public HttpApiResponse<List<SalesByCategoryDto>> getSalesByCategory() {
+        return dashboardService.getSalesByCategory();
+    }
+
+    @GetMapping("/top-products")
+    public HttpApiResponse<List<TopSellingProductDto>> getTopSellingProducts() {
+        return dashboardService.getTopSellingProducts();
+    }
+
+
 }
