@@ -2,9 +2,6 @@ package com.company.Pos_System.service.impl;
 
 import com.company.Pos_System.dto.HttpApiResponse;
 import com.company.Pos_System.dto.OrdersDto;
-import com.company.Pos_System.enums.OrderStatus;
-import com.company.Pos_System.models.Order;
-import com.company.Pos_System.models.OrderItem;
 import com.company.Pos_System.models.Order;
 import com.company.Pos_System.models.Users;
 import com.company.Pos_System.repository.OrderItemRepository;
@@ -20,10 +17,8 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor

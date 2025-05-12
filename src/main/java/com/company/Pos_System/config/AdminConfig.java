@@ -1,6 +1,6 @@
 package com.company.Pos_System.config;
 
-import com.company.Pos_System.enums.UserRole;
+import com.company.Pos_System.models.enums.UserRole;
 import com.company.Pos_System.models.Users;
 import com.company.Pos_System.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;

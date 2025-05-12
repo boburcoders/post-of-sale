@@ -1,6 +1,6 @@
 package com.company.Pos_System.dto;
 
-import com.company.Pos_System.enums.OrderStatus;
+import com.company.Pos_System.models.enums.OrderStatus;
 import lombok.*;
 
 import java.math.BigDecimal;

@@ -1,8 +1,7 @@
 package com.company.Pos_System.models;
 
-import com.company.Pos_System.enums.OrderStatus;
+import com.company.Pos_System.models.enums.OrderStatus;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.math.BigDecimal;
