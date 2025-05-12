@@ -1,6 +1,10 @@
 package com.company.Pos_System.service.impl;
 
+import com.company.Pos_System.config.JwtTokenUtil;
+import com.company.Pos_System.config.UserPrincipal;
 import com.company.Pos_System.dto.HttpApiResponse;
+import com.company.Pos_System.dto.LoginResponseDto;
+import com.company.Pos_System.dto.TokenRequestDto;
 import com.company.Pos_System.dto.UserDto;
 import com.company.Pos_System.models.Users;
 import com.company.Pos_System.repository.UserRepository;
@@ -9,6 +13,10 @@ import com.company.Pos_System.service.mapper.UserMapper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -23,6 +31,8 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final AuthenticationManager authenticationManager;
+    private final JwtTokenUtil jwtTokenUtil;
 
     @Override
     public HttpApiResponse<UserDto> registerUser(UserDto dto) {
@@ -47,23 +57,45 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public HttpApiResponse<UserDto> userLogin(UserDto dto) {
-        Users user = userRepository.findByUsernameAndDeletedAtIsNull(dto.getUsername()).orElseThrow(
-                () -> new UsernameNotFoundException("User not found"));
-        if (!bCryptPasswordEncoder.matches(dto.getPassword(), user.getPassword())) {
-            return HttpApiResponse.<UserDto>builder()
+    public HttpApiResponse<LoginResponseDto> userLogin(TokenRequestDto dto) {
+        try {
+            // Authenticate the user
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(dto.getUsername(), dto.getPassword()));
+
+            // Get the UserPrincipal and extract the actual Users entity
+            UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+            Users user = userPrincipal.getUser();
+
+            // Generate token
+            String token = jwtTokenUtil.getJwtToken(user.getUsername());
+
+            // Prepare response DTO
+            LoginResponseDto responseDto = LoginResponseDto.builder()
+                    .token(token)
+                    .user(UserDto.builder()
+                            .id(user.getId())
+                            .fullName(user.getFullName())
+                            .username(user.getUsername())
+                            .role(user.getRole())
+                            .build())
+                    .build();
+
+            return HttpApiResponse.<LoginResponseDto>builder()
+                    .status(HttpStatus.OK)
+                    .success(true)
+                    .message("Login successful")
+                    .data(responseDto)
+                    .build();
+
+        } catch (AuthenticationException e) {
+            return HttpApiResponse.<LoginResponseDto>builder()
                     .status(HttpStatus.UNAUTHORIZED)
                     .message("Invalid username or password")
                     .build();
         }
-        return HttpApiResponse.<UserDto>builder()
-                .success(true)
-                .status(HttpStatus.OK)
-                .message("Login successfully")
-                .data(this.userMapper.ToDto(user))
-                .build();
-
     }
+
 
     @Override
     public HttpApiResponse<UserDto> getUserById(Long id) {

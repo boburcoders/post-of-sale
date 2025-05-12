@@ -4,7 +4,9 @@ import com.company.Pos_System.dto.CategoryDto;
 import com.company.Pos_System.dto.HttpApiResponse;
 import com.company.Pos_System.models.Category;
 import com.company.Pos_System.repository.CategoryRepository;
+import com.company.Pos_System.repository.ProductRepository;
 import com.company.Pos_System.service.mapper.CategoryMapper;
+import com.company.Pos_System.service.mapper.ProductMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,6 +28,11 @@ class CategoryServiceImplTest {
     @Mock
     CategoryMapper categoryMapper;
 
+    @Mock
+    ProductRepository productRepository;
+    @Mock
+    ProductMapper productMapper;
+
     Category category;
     CategoryDto categoryDto;
 
@@ -35,7 +42,7 @@ class CategoryServiceImplTest {
     void setUp() {
         category = new Category();
         categoryDto = new CategoryDto();
-        categoryService = new CategoryServiceImpl(categoryRepository, categoryMapper);
+        categoryService = new CategoryServiceImpl(categoryRepository, productRepository, productMapper, categoryMapper);
     }
 
     @Test

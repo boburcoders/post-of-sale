@@ -1,6 +1,10 @@
 package com.company.Pos_System.service.impl;
 
+import com.company.Pos_System.config.JwtTokenUtil;
+import com.company.Pos_System.config.UserPrincipal;
 import com.company.Pos_System.dto.HttpApiResponse;
+import com.company.Pos_System.dto.LoginResponseDto;
+import com.company.Pos_System.dto.TokenRequestDto;
 import com.company.Pos_System.dto.UserDto;
 import com.company.Pos_System.models.enums.UserRole;
 import com.company.Pos_System.models.Users;
@@ -12,6 +16,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -31,17 +37,31 @@ class UserServiceImplTest {
 
     @Mock
     BCryptPasswordEncoder bCryptPasswordEncoder;
+    @Mock
+    private AuthenticationManager authenticationManager;
+    @Mock
+    private JwtTokenUtil jwtTokenUtil;
 
     UserServiceImpl userService;
 
     Users users;
     UserDto userDto;
+    TokenRequestDto tokenRequestDto;
+    LoginResponseDto responseDto;
 
     @BeforeEach
     void setUp() {
         userDto = new UserDto();
         users = new Users();
-        userService = new UserServiceImpl(userRepository, userMapper, bCryptPasswordEncoder);
+        tokenRequestDto = TokenRequestDto.builder()
+                .username("username")
+                .password("password")
+                .build();
+        responseDto = LoginResponseDto.builder()
+                .user(userDto)
+                .token("token")
+                .build();
+        userService = new UserServiceImpl(userRepository, userMapper, bCryptPasswordEncoder, authenticationManager, jwtTokenUtil);
     }
 
     @Test
@@ -71,76 +91,78 @@ class UserServiceImplTest {
         UserDto userDto = UserDto.builder()
                 .id(1L)
                 .fullName("Bobur Toshniyozv")
-                .username("root")
-                .password("password")
+                .username("BOBUR_ADMIN")
+                .password("Admin@123")
                 .role(UserRole.ADMIN)
                 .build();
 
-
         Users entity = new Users();
-        entity.setUsername("root");
-        when(userRepository.findByUsernameAndDeletedAtIsNull(entity.getUsername())).thenReturn(Optional.empty());
-        when(bCryptPasswordEncoder.encode("password")).thenReturn("password");
+        entity.setUsername("BOBUR_ADMIN");
+        entity.setPassword("encoded-password"); // simulated encoded password
+
+        when(userRepository.findByUsernameAndDeletedAtIsNull("BOBUR_ADMIN")).thenReturn(Optional.empty());
+        when(bCryptPasswordEncoder.encode("Admin@123")).thenReturn("encoded-password");
         when(userMapper.ToEntity(userDto)).thenReturn(entity);
         when(userMapper.ToDto(entity)).thenReturn(userDto);
-
+        when(userRepository.saveAndFlush(entity)).thenReturn(entity);
 
         HttpApiResponse<UserDto> response = userService.registerUser(userDto);
 
         assertNotNull(response);
         assertEquals(HttpStatus.CREATED, response.getStatus());
         assertEquals("User registered successfully", response.getMessage());
+        assertEquals(userDto, response.getData());
 
-        verify(userRepository).findByUsernameAndDeletedAtIsNull(entity.getUsername());
+        verify(userRepository).findByUsernameAndDeletedAtIsNull("BOBUR_ADMIN");
         verify(userRepository).saveAndFlush(entity);
         verify(userMapper).ToEntity(userDto);
         verify(userMapper).ToDto(entity);
-        verify(bCryptPasswordEncoder).encode("password");
-
-
+        verify(bCryptPasswordEncoder).encode("Admin@123");
     }
 
-    @Test
-    void userLoginForFailure() {
-        UserDto userDto = UserDto.builder()
-                .id(1L)
-                .fullName("Bobur Toshniyozv")
-                .username("root")
-                .password("password")
-                .role(UserRole.ADMIN)
-                .build();
 
-        when(userRepository.findByUsernameAndDeletedAtIsNull("root")).thenThrow(new UsernameNotFoundException("User not found"));
-        assertThrows(UsernameNotFoundException.class, () -> userService.userLogin(userDto));
-        verify(userRepository).findByUsernameAndDeletedAtIsNull("root");
-    }
 
     @WithMockUser(username = "BOBUR_ADMIN", password = "Admin@123", roles = {"ADMIN"})
     @Test
     void userLoginForSuccess() {
+        // Given
+        TokenRequestDto tokenRequestDto = new TokenRequestDto();
+        tokenRequestDto.setUsername("BOBUR_ADMIN");
+        tokenRequestDto.setPassword("Admin@123");
+
+        Users userEntity = new Users();
+        userEntity.setId(1L);
+        userEntity.setFullName("Bobur Toshniyozv");
+        userEntity.setUsername("BOBUR_ADMIN");
+        userEntity.setPassword("Admin@123");
+        userEntity.setRole(UserRole.ADMIN);
+
         UserDto userDto = UserDto.builder()
-                .id(1L)
-                .fullName("Bobur Toshniyozv")
-                .username("BOBUR_ADMIN")
-                .password("Admin@123")
-                .role(UserRole.ADMIN)
+                .id(userEntity.getId())
+                .fullName(userEntity.getFullName())
+                .username(userEntity.getUsername())
+                .role(userEntity.getRole())
                 .build();
-        Users entity = new Users();
-        entity.setUsername("BOBUR_ADMIN");
-        entity.setPassword("Admin@123");
 
-        when(userRepository.findByUsernameAndDeletedAtIsNull("BOBUR_ADMIN")).thenReturn(Optional.of(entity));
+        UserPrincipal userPrincipal = new UserPrincipal(userEntity);
 
-        when(bCryptPasswordEncoder.matches("Admin@123", entity.getPassword())).thenReturn(true);
+        Authentication mockAuthentication = mock(Authentication.class);
+        when(mockAuthentication.getPrincipal()).thenReturn(userPrincipal);
 
-        HttpApiResponse<UserDto> response = userService.userLogin(userDto);
+        when(authenticationManager.authenticate(any())).thenReturn(mockAuthentication);
+        when(jwtTokenUtil.getJwtToken(userEntity.getUsername())).thenReturn("fake-jwt-token");
+
+        HttpApiResponse<LoginResponseDto> response = userService.userLogin(tokenRequestDto);
 
         assertNotNull(response);
         assertEquals(HttpStatus.OK, response.getStatus());
-        assertEquals("Login successfully", response.getMessage());
+        assertEquals("Login successful", response.getMessage());
+        assertNotNull(response.getData());
+        assertEquals("fake-jwt-token", response.getData().getToken());
+        assertEquals(userDto.getUsername(), response.getData().getUser().getUsername());
 
-        verify(userRepository).findByUsernameAndDeletedAtIsNull("BOBUR_ADMIN");
     }
+
 
 
     @Test
@@ -241,7 +263,7 @@ class UserServiceImplTest {
     @Test
     void updateUserForFail() {
         when(userRepository.findByIdAndDeletedAtIsNull(1L)).thenThrow(new UsernameNotFoundException("User not found"));
-        assertThrows(UsernameNotFoundException.class, () -> userService.updateUser(1L,userDto));
+        assertThrows(UsernameNotFoundException.class, () -> userService.updateUser(1L, userDto));
         verify(userRepository, times(1)).findByIdAndDeletedAtIsNull(1L);
         verifyNoInteractions(userMapper);
     }

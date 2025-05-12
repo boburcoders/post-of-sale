@@ -127,18 +127,22 @@ public class SecurityConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration corsConfiguration = new CorsConfiguration();
+        CorsConfiguration configuration = new CorsConfiguration();
 
-        // Allow any origin by using "*"
-        corsConfiguration.setAllowedOriginPatterns(List.of("*"));
-
-        corsConfiguration.setAllowedMethods(List.of("*")); // Allow all HTTP methods
-        corsConfiguration.setAllowedHeaders(List.of("*")); // Allow all headers
+        configuration.setAllowedOrigins(List.of(
+                "https://pos-system.net.uz"
+                , "https://pos-faib.vercel.app",
+                "http://localhost:8080",
+                "http://localhost:3000")); // Don't use "*"
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(true); // Must be true if using cookies or Authorization
+        configuration.setMaxAge(3600L); // Optional, cache for 1 hour
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", corsConfiguration); // Apply to all paths
-
+        source.registerCorsConfiguration("/**", configuration);
         return source;
     }
+
 
 }

@@ -1,9 +1,12 @@
 package com.company.Pos_System.controller;
 
+import com.company.Pos_System.config.UserPrincipal;
 import com.company.Pos_System.dto.HttpApiResponse;
+import com.company.Pos_System.dto.LoginResponseDto;
 import com.company.Pos_System.dto.TokenRequestDto;
 import com.company.Pos_System.dto.UserDto;
 import com.company.Pos_System.config.JwtTokenUtil;
+import com.company.Pos_System.models.Users;
 import com.company.Pos_System.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +16,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.core.Authentication;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,18 +40,11 @@ public class UserController {
 
     @PostMapping("/login")
     @Operation(summary = "Get JWT Token", description = "Get Token with your Username and Password")
-    public HttpApiResponse<String> userLogin(@RequestBody TokenRequestDto dto) {
-        String password = dto.getPassword();
-        String username = dto.getUsername();
-        UsernamePasswordAuthenticationToken authenticate = new UsernamePasswordAuthenticationToken(username, password);
-        authenticationManager.authenticate(authenticate);
-        return HttpApiResponse.<String>builder()
-                .status(HttpStatus.OK)
-                .success(true)
-                .message("Token Generated Successfully for " + username)
-                .data(jwtTokenUtil.getJwtToken(username))
-                .build();
+    public HttpApiResponse<LoginResponseDto> userLogin(@RequestBody TokenRequestDto dto) {
+        return userService.userLogin(dto);
     }
+
+
 
     @GetMapping("/by-id/{id}")
     @Operation(summary = "Get user by Id", description = "Get User By Id")

@@ -1,14 +1,13 @@
 package com.company.Pos_System.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+
 public class TokenRequestDto {
     private String username;
     private String password;

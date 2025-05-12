@@ -42,8 +42,8 @@ public class PosSystemApplication {
                         .description("POS System version 2")
                         .url("https://pos-system.net.uz"))
                 .servers(List.of(
+                        new Server().url("https://pos-system.net.uz").description("Production Server"),
                         new Server().url("http://localhost:8080").description("Test Server")
-//                        new Server().url("https://pos-system.net.uz").description("Production Server"),
                 ))
                 .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
                 .components(new Components()

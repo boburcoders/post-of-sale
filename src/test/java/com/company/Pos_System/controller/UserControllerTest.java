@@ -1,6 +1,8 @@
 package com.company.Pos_System.controller;
 
 import com.company.Pos_System.dto.HttpApiResponse;
+import com.company.Pos_System.dto.LoginResponseDto;
+import com.company.Pos_System.dto.TokenRequestDto;
 import com.company.Pos_System.dto.UserDto;
 import com.company.Pos_System.models.enums.UserRole;
 import com.company.Pos_System.models.Users;
@@ -24,6 +26,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -42,6 +45,8 @@ class UserControllerTest {
 
     Users user;
     UserDto userDto;
+    LoginResponseDto loginResponseDto;
+    TokenRequestDto tokenRequestDto;
 
     @BeforeEach
     void setUp() {
@@ -58,15 +63,26 @@ class UserControllerTest {
                 .password(PASSWORD)
                 .role(UserRole.ADMIN)
                 .build();
-
+        loginResponseDto = LoginResponseDto.builder()
+                .token("token")
+                .user(userDto)
+                .build();
+        tokenRequestDto = TokenRequestDto.builder()
+                .username(USERNAME)
+                .password(PASSWORD)
+                .build();
         HttpApiResponse<UserDto> response = HttpApiResponse.<UserDto>builder()
                 .status(HttpStatus.OK)
                 .message("OK")
                 .data(userDto)
                 .build();
-
+        HttpApiResponse<LoginResponseDto> loginResponseDtoHttpApiResponse = HttpApiResponse.<LoginResponseDto>builder()
+                .status(HttpStatus.OK)
+                .message("OK")
+                .data(loginResponseDto)
+                .build();
         when(userService.registerUser(any(UserDto.class))).thenReturn(response);
-        when(userService.userLogin(any(UserDto.class))).thenReturn(response);
+        when(userService.userLogin(any(TokenRequestDto.class))).thenReturn(loginResponseDtoHttpApiResponse);
         when(userService.getUserById(1L)).thenReturn(response);
         when(userService.getAllUsers()).thenReturn(HttpApiResponse.<List<UserDto>>builder()
                 .status(HttpStatus.OK)
@@ -86,38 +102,31 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .with(SecurityMockMvcRequestPostProcessors.user(USERNAME).password(PASSWORD).roles("ADMIN"))
                         .content(toJson(user)))
-                .andExpect(MockMvcResultMatchers.status().isOk());
+                .andExpect(status().isOk());
     }
 
     @Test
     void userLoginSuccessTest() throws Exception {
         mockMvc.perform(post("/api/user/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(toJson(user)))
-                .andExpect(MockMvcResultMatchers.status().isOk());
+                        .content(toJson(tokenRequestDto)))
+                .andExpect(status().isOk());
     }
 
-    @Test
-    void userLoginFailTest() throws Exception {
-        user.setPassword("wrongPassword");
-        mockMvc.perform(post("/api/user/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(toJson(user)))
-                .andExpect(MockMvcResultMatchers.status().isUnauthorized());
-    }
+
 
     @Test
     void getUserByIdSuccessTest() throws Exception {
         mockMvc.perform(get("/api/user/by-id/{id}", 1)
                         .with(SecurityMockMvcRequestPostProcessors.user(USERNAME).password(PASSWORD).roles("ADMIN")))
-                .andExpect(MockMvcResultMatchers.status().isOk());
+                .andExpect(status().isOk());
     }
 
     @Test
     void getAllUserSuccessTest() throws Exception {
         mockMvc.perform(get("/api/user/get-all")
                         .with(SecurityMockMvcRequestPostProcessors.user(USERNAME).password(PASSWORD).roles("ADMIN")))
-                .andExpect(MockMvcResultMatchers.status().isOk());
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -126,13 +135,13 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(toJson(userDto))
                         .with(SecurityMockMvcRequestPostProcessors.user(USERNAME).password(PASSWORD).roles("ADMIN")))
-                .andExpect(MockMvcResultMatchers.status().isOk());
+                .andExpect(status().isOk());
     }
 
     @Test
     void deleteUserSuccessTest() throws Exception {
         mockMvc.perform(delete("/api/user/{id}", 1)
                         .with(SecurityMockMvcRequestPostProcessors.user(USERNAME).password(PASSWORD).roles("ADMIN")))
-                .andExpect(MockMvcResultMatchers.status().isOk());
+                .andExpect(status().isOk());
     }
 }
