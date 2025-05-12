@@ -18,6 +18,7 @@ public class ProductDto {
     private String description;
     private BigDecimal price;
     private Long categoryId;
+    private Long warehouseId;
 
     private LocalDateTime createdAt;
 

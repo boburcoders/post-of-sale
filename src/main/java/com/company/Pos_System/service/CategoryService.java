@@ -14,7 +14,7 @@ public interface CategoryService {
 
     HttpApiResponse<CategoryDto> updateCategoryById(Long id, CategoryDto dto);
 
-    HttpApiResponse<CategoryDto> deleteCategoryById(Long id);
+    HttpApiResponse<String> deleteCategoryById(Long id);
 
     HttpApiResponse<List<CategoryDto>> getAllCategory();
 }

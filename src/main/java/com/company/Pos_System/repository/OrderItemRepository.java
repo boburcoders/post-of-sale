@@ -11,8 +11,6 @@ import java.util.Optional;
 public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
     Optional<OrderItem> findByIdAndDeletedAtIsNull(Long id);
 
-    boolean existsByIdAndDeletedAtIsNull(Long id);
-
     Optional<List<OrderItem>> findAllByDeletedAtIsNull();
 
 }

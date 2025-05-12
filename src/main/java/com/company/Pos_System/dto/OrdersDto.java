@@ -16,6 +16,7 @@ import java.util.List;
 public class OrdersDto {
     private Long id;
     private Long userId;
+    private Long warehouseId;
     private BigDecimal total;
     private OrderStatus status;
     private List<OrderItemDto> orderItemDtoList = new ArrayList<>();

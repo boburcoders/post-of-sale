@@ -3,9 +3,12 @@ package com.company.Pos_System.service.impl;
 import com.company.Pos_System.dto.CategoryDto;
 import com.company.Pos_System.dto.HttpApiResponse;
 import com.company.Pos_System.models.Category;
+import com.company.Pos_System.models.Product;
 import com.company.Pos_System.repository.CategoryRepository;
+import com.company.Pos_System.repository.ProductRepository;
 import com.company.Pos_System.service.CategoryService;
 import com.company.Pos_System.service.mapper.CategoryMapper;
+import com.company.Pos_System.service.mapper.ProductMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -13,11 +16,14 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
 public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
+    private final ProductRepository productRepository;
+    private final ProductMapper productMapper;
     private final CategoryMapper categoryMapper;
 
     @Override
@@ -34,6 +40,7 @@ public class CategoryServiceImpl implements CategoryService {
         categoryRepository.save(entity);
 
         return HttpApiResponse.<CategoryDto>builder()
+                .success(true)
                 .status(HttpStatus.CREATED)
                 .message("Category created")
                 .data(categoryMapper.toDto(entity))
@@ -49,10 +56,14 @@ public class CategoryServiceImpl implements CategoryService {
                     .message("Category not found")
                     .build();
         }
+        CategoryDto categoryDto = categoryMapper.toDto(optionalCategory.get());
+        Optional<Set<Product>> allByCategoryName = productRepository.findAllByCategoryName(optionalCategory.get().getName());
+        allByCategoryName.ifPresent(products -> categoryDto.setProducts(productMapper.toDtoList(products)));
         return HttpApiResponse.<CategoryDto>builder()
+                .success(true)
                 .status(HttpStatus.OK)
                 .message("OK")
-                .data(categoryMapper.toDto(optionalCategory.get()))
+                .data(categoryDto)
                 .build();
     }
 
@@ -62,6 +73,7 @@ public class CategoryServiceImpl implements CategoryService {
                 () -> new RuntimeException("Categories not found"));
 
         return HttpApiResponse.<List<CategoryDto>>builder()
+                .success(true)
                 .status(HttpStatus.OK)
                 .message("OK")
                 .data(categoryMapper.toDtoList(categoryList))
@@ -82,17 +94,18 @@ public class CategoryServiceImpl implements CategoryService {
         categoryRepository.save(updatedEntity);
 
         return HttpApiResponse.<CategoryDto>builder()
+                .success(true)
                 .status(HttpStatus.OK)
-                .message("OK")
+                .message("Category updated")
                 .data(categoryMapper.toDto(updatedEntity))
                 .build();
     }
 
     @Override
-    public HttpApiResponse<CategoryDto> deleteCategoryById(Long id) {
+    public HttpApiResponse<String> deleteCategoryById(Long id) {
         Optional<Category> optionalCategory = categoryRepository.findByIdAndDeletedAtIsNull(id);
         if (optionalCategory.isEmpty()) {
-            return HttpApiResponse.<CategoryDto>builder()
+            return HttpApiResponse.<String>builder()
                     .status(HttpStatus.NOT_FOUND)
                     .message("Category not found")
                     .build();
@@ -102,10 +115,10 @@ public class CategoryServiceImpl implements CategoryService {
 
         categoryRepository.save(optionalCategory.get());
 
-        return HttpApiResponse.<CategoryDto>builder()
+        return HttpApiResponse.<String>builder()
+                .success(true)
                 .status(HttpStatus.OK)
-                .message("OK")
-                .data(categoryMapper.toDto(optionalCategory.get()))
+                .message("Category deleted")
                 .build();
     }
 }

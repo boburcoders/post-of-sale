@@ -10,9 +10,8 @@ import java.util.Set;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
-    Optional<Product> findByIdAndDeletedAtIsNull(Long id);
 
-    boolean existsByIdAndDeletedAtIsNull(Long id);
+    Optional<Product> findByIdAndDeletedAtIsNull(Long id);
 
     Optional<Set<Product>> findAllByDeletedAtIsNull();
 
