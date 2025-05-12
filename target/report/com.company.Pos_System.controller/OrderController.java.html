@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="uz"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OrderController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Pos-System</a> &gt; <a href="index.source.html" class="el_package">com.company.Pos_System.controller</a> &gt; <span class="el_source">OrderController.java</span></div><h1>OrderController.java</h1><pre class="source lang-java linenums">package com.company.Pos_System.controller;
+
+import com.company.Pos_System.dto.HttpApiResponse;
+import com.company.Pos_System.dto.OrdersDto;
+import com.company.Pos_System.service.OrderService;
+import io.swagger.v3.oas.annotations.Operation;
+import lombok.RequiredArgsConstructor;
+import org.hibernate.query.Order;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+<span class="fc" id="L15">@RequiredArgsConstructor</span>
+@RequestMapping(&quot;api/order&quot;)
+public class OrderController {
+    private final OrderService orderService;
+
+    @PostMapping
+    @PreAuthorize(&quot;isAuthenticated()&quot;)
+    @Operation(summary = &quot;Create a Order&quot;, description = &quot;Create a order&quot;)
+    HttpApiResponse&lt;OrdersDto&gt; createOrder(@RequestBody OrdersDto dto) {
+<span class="fc" id="L24">        return orderService.createOrder(dto);</span>
+    }
+
+    @GetMapping(&quot;/{id}&quot;)
+    @PreAuthorize(&quot;isAuthenticated()&quot;)
+    @Operation(summary = &quot;Get Order&quot;, description = &quot;Get a order by Id&quot;)
+    HttpApiResponse&lt;OrdersDto&gt; getOrderById(@PathVariable Long id) {
+<span class="fc" id="L31">        return orderService.getOrderById(id);</span>
+    }
+
+    @GetMapping(&quot;/get-all&quot;)
+    @PreAuthorize(&quot;isAuthenticated()&quot;)
+    @Operation(summary = &quot;Get All Order&quot;, description = &quot;Get All Orders&quot;)
+    public HttpApiResponse&lt;List&lt;OrdersDto&gt;&gt; getAllOrders() {
+<span class="fc" id="L38">        return orderService.getAllOrders();</span>
+    }
+
+    @PutMapping(&quot;/{id}&quot;)
+    @PreAuthorize(&quot;isAuthenticated()&quot;)
+    @Operation(summary = &quot;Update Order&quot;, description = &quot;Update a order by Id&quot;)
+    HttpApiResponse&lt;OrdersDto&gt; updateOrderById(@PathVariable Long id, @RequestBody OrdersDto dto) {
+<span class="fc" id="L45">        return orderService.updateOrderById(id, dto);</span>
+    }
+
+    @DeleteMapping(&quot;/{id}&quot;)
+    @PreAuthorize(&quot;isAuthenticated()&quot;)
+    @Operation(summary = &quot;Delete Order&quot;, description = &quot;Delete a order by Id&quot;)
+    HttpApiResponse&lt;String&gt; deleteOrderById(@PathVariable Long id) {
+<span class="fc" id="L52">        return orderService.deleteOrderById(id);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

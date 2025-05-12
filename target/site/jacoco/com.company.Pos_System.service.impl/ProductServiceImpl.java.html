@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="uz"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ProductServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Pos-System</a> &gt; <a href="index.source.html" class="el_package">com.company.Pos_System.service.impl</a> &gt; <span class="el_source">ProductServiceImpl.java</span></div><h1>ProductServiceImpl.java</h1><pre class="source lang-java linenums">package com.company.Pos_System.service.impl;
+
+import com.company.Pos_System.dto.HttpApiResponse;
+import com.company.Pos_System.dto.ProductDto;
+import com.company.Pos_System.models.Category;
+import com.company.Pos_System.models.Product;
+import com.company.Pos_System.models.WareHouse;
+import com.company.Pos_System.repository.CategoryRepository;
+import com.company.Pos_System.repository.OrderItemRepository;
+import com.company.Pos_System.repository.ProductRepository;
+import com.company.Pos_System.repository.WareHouseRepository;
+import com.company.Pos_System.service.ProductService;
+import com.company.Pos_System.service.mapper.ProductMapper;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
+
+import java.time.LocalDateTime;
+import java.util.*;
+
+@Component
+<span class="fc" id="L24">@RequiredArgsConstructor</span>
+public class ProductServiceImpl implements ProductService {
+    private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
+    private final WareHouseRepository wareHouseRepository;
+    private final ProductMapper productMapper;
+
+    @Override
+    @Transactional
+    public HttpApiResponse&lt;ProductDto&gt; createProduct(ProductDto dto) {
+<span class="pc bpc" id="L34" title="1 of 2 branches missed.">        if (dto == null) {</span>
+<span class="nc" id="L35">            return HttpApiResponse.&lt;ProductDto&gt;builder()</span>
+<span class="nc" id="L36">                    .status(HttpStatus.BAD_REQUEST)</span>
+<span class="nc" id="L37">                    .message(&quot;Product DTO cannot be null&quot;)</span>
+<span class="nc" id="L38">                    .build();</span>
+        }
+
+<span class="fc" id="L41">        Category category = categoryRepository.findByIdAndDeletedAtIsNull(dto.getCategoryId())</span>
+<span class="pc" id="L42">                .orElseThrow(() -&gt; new EntityNotFoundException(&quot;Category not found with ID: &quot; + dto.getCategoryId()));</span>
+<span class="fc" id="L43">        WareHouse wareHouse = wareHouseRepository.findByIdAndDeletedAtIsNull(dto.getWarehouseId())</span>
+<span class="pc" id="L44">                .orElseThrow(() -&gt; new EntityNotFoundException(&quot;Warehouse not found with ID: &quot; + dto.getWarehouseId()));</span>
+
+
+<span class="fc" id="L47">        Product product = productMapper.toEntity(dto);</span>
+<span class="fc" id="L48">        product.setCategory(category);</span>
+<span class="fc" id="L49">        product.setWareHouse(wareHouse);</span>
+
+<span class="pc bpc" id="L51" title="1 of 2 branches missed.">        if (category.getProducts() == null) {</span>
+<span class="nc" id="L52">            category.setProducts(new HashSet&lt;&gt;());</span>
+        }
+<span class="fc" id="L54">        category.getProducts().add(product);</span>
+
+
+<span class="fc" id="L57">        Product savedProduct = productRepository.save(product);</span>
+
+<span class="fc" id="L59">        return HttpApiResponse.&lt;ProductDto&gt;builder()</span>
+<span class="fc" id="L60">                .success(true)</span>
+<span class="fc" id="L61">                .status(HttpStatus.CREATED)</span>
+<span class="fc" id="L62">                .message(&quot;Product created successfully&quot;)</span>
+<span class="fc" id="L63">                .data(productMapper.toDto(savedProduct))</span>
+<span class="fc" id="L64">                .build();</span>
+    }
+
+    @Override
+    public HttpApiResponse&lt;ProductDto&gt; getProductById(Long id) {
+<span class="fc" id="L69">        Product product = productRepository.findByIdAndDeletedAtIsNull(id).orElseThrow(</span>
+<span class="nc" id="L70">                () -&gt; new EntityNotFoundException(&quot;Product not found&quot;));</span>
+<span class="fc" id="L71">        return HttpApiResponse.&lt;ProductDto&gt;builder()</span>
+<span class="fc" id="L72">                .success(true)</span>
+<span class="fc" id="L73">                .status(HttpStatus.OK)</span>
+<span class="fc" id="L74">                .message(&quot;OK&quot;)</span>
+<span class="fc" id="L75">                .data(productMapper.toDto(product))</span>
+<span class="fc" id="L76">                .build();</span>
+    }
+
+    @Override
+    public HttpApiResponse&lt;Set&lt;ProductDto&gt;&gt; getAllProducts() {
+<span class="fc" id="L81">        Set&lt;Product&gt; productList = productRepository.findAllByDeletedAtIsNull().orElseThrow(</span>
+<span class="nc" id="L82">                () -&gt; new EntityNotFoundException(&quot;Products not found&quot;));</span>
+
+<span class="fc" id="L84">        return HttpApiResponse.&lt;Set&lt;ProductDto&gt;&gt;builder()</span>
+<span class="fc" id="L85">                .success(true)</span>
+<span class="fc" id="L86">                .status(HttpStatus.OK)</span>
+<span class="fc" id="L87">                .message(&quot;OK&quot;)</span>
+<span class="fc" id="L88">                .data(productMapper.toDtoList(productList))</span>
+<span class="fc" id="L89">                .build();</span>
+    }
+
+    @Override
+    public HttpApiResponse&lt;Set&lt;ProductDto&gt;&gt; getAllProductsByCategory(String categoryName) {
+<span class="fc" id="L94">        Set&lt;Product&gt; productList = productRepository.findAllByCategoryName(categoryName).orElseThrow(</span>
+<span class="nc" id="L95">                () -&gt; new EntityNotFoundException(&quot;Products not found&quot;));</span>
+
+<span class="fc" id="L97">        return HttpApiResponse.&lt;Set&lt;ProductDto&gt;&gt;builder()</span>
+<span class="fc" id="L98">                .success(true)</span>
+<span class="fc" id="L99">                .status(HttpStatus.OK)</span>
+<span class="fc" id="L100">                .message(&quot;OK&quot;)</span>
+<span class="fc" id="L101">                .data(productMapper.toDtoList(productList))</span>
+<span class="fc" id="L102">                .build();</span>
+    }
+
+    @Override
+    public HttpApiResponse&lt;ProductDto&gt; updateProductById(Long id, ProductDto dto) {
+
+<span class="fc" id="L108">        Product product = productRepository.findByIdAndDeletedAtIsNull(id).orElseThrow(</span>
+<span class="nc" id="L109">                () -&gt; new EntityNotFoundException(&quot;Product not found&quot;));</span>
+
+<span class="fc" id="L111">        Product updatedEntity = productMapper.updateEntity(product, dto);</span>
+
+<span class="fc" id="L113">        productRepository.save(updatedEntity);</span>
+
+<span class="fc" id="L115">        return HttpApiResponse.&lt;ProductDto&gt;builder()</span>
+<span class="fc" id="L116">                .success(true)</span>
+<span class="fc" id="L117">                .status(HttpStatus.OK)</span>
+<span class="fc" id="L118">                .message(&quot;Product updated successfully&quot;)</span>
+<span class="fc" id="L119">                .data(productMapper.toDto(updatedEntity))</span>
+<span class="fc" id="L120">                .build();</span>
+    }
+
+    @Override
+    public HttpApiResponse&lt;String&gt; deleteProductById(Long id) {
+
+<span class="fc" id="L126">        Product product = productRepository.findByIdAndDeletedAtIsNull(id).orElseThrow(</span>
+<span class="nc" id="L127">                () -&gt; new EntityNotFoundException(&quot;Product not found&quot;));</span>
+
+<span class="fc" id="L129">        product.setDeletedAt(LocalDateTime.now());</span>
+
+<span class="fc" id="L131">        productRepository.save(product);</span>
+
+<span class="fc" id="L133">        return HttpApiResponse.&lt;String&gt;builder()</span>
+<span class="fc" id="L134">                .success(true)</span>
+<span class="fc" id="L135">                .status(HttpStatus.OK)</span>
+<span class="fc" id="L136">                .message(&quot;Product deleted successfully&quot;)</span>
+<span class="fc" id="L137">                .build();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="uz"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OrderServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Pos-System</a> &gt; <a href="index.source.html" class="el_package">com.company.Pos_System.service.impl</a> &gt; <span class="el_source">OrderServiceImpl.java</span></div><h1>OrderServiceImpl.java</h1><pre class="source lang-java linenums">package com.company.Pos_System.service.impl;
+
+import com.company.Pos_System.dto.HttpApiResponse;
+import com.company.Pos_System.dto.OrdersDto;
+import com.company.Pos_System.models.*;
+import com.company.Pos_System.models.Order;
+import com.company.Pos_System.repository.OrderRepository;
+import com.company.Pos_System.repository.UserRepository;
+import com.company.Pos_System.repository.WareHouseRepository;
+import com.company.Pos_System.service.OrderService;
+import com.company.Pos_System.service.mapper.OrderMapper;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
+
+@Component
+<span class="fc" id="L24">@RequiredArgsConstructor</span>
+public class OrderServiceImpl implements OrderService {
+    private final OrderRepository orderRepository;
+    private final UserRepository userRepository;
+    private final WareHouseRepository wareHouseRepository;
+    private final OrderMapper orderMapper;
+
+    @Override
+    @Transactional
+    public HttpApiResponse&lt;OrdersDto&gt; createOrder(OrdersDto dto) {
+<span class="fc" id="L34">        Objects.requireNonNull(dto, &quot;Order DTO cannot be null&quot;);</span>
+
+<span class="fc" id="L36">        Users user = userRepository.findByIdAndDeletedAtIsNull(dto.getUserId())</span>
+<span class="pc" id="L37">                .orElseThrow(() -&gt; new EntityNotFoundException(&quot;User not found with ID: &quot; + dto.getUserId()));</span>
+<span class="fc" id="L38">        WareHouse wareHouse = wareHouseRepository.findByIdAndDeletedAtIsNull(dto.getWarehouseId())</span>
+<span class="pc" id="L39">                .orElseThrow(() -&gt; new EntityNotFoundException(&quot;Warehouse not found with ID: &quot; + dto.getWarehouseId()));</span>
+
+<span class="fc" id="L41">        Order entity = orderMapper.toEntity(dto);</span>
+<span class="fc" id="L42">        entity.setUser(user);</span>
+<span class="fc" id="L43">        entity.setWarehouse(wareHouse);</span>
+
+<span class="pc bpc" id="L45" title="1 of 2 branches missed.">        BigDecimal newPrice = entity.getTotal() != null ? entity.getTotal() : BigDecimal.ZERO; // Ensure no null value</span>
+<span class="fc" id="L46">        entity.setTotal(newPrice);</span>
+
+
+<span class="fc" id="L49">        Order savedEntity = orderRepository.save(entity);</span>
+
+<span class="fc" id="L51">        return HttpApiResponse.&lt;OrdersDto&gt;builder()</span>
+<span class="fc" id="L52">                .success(true)</span>
+<span class="fc" id="L53">                .status(HttpStatus.CREATED)</span>
+<span class="fc" id="L54">                .message(&quot;Order created successfully&quot;)</span>
+<span class="fc" id="L55">                .data(orderMapper.toDto(savedEntity))</span>
+<span class="fc" id="L56">                .build();</span>
+    }
+
+
+    @Override
+    public HttpApiResponse&lt;OrdersDto&gt; getOrderById(Long id) {
+<span class="fc" id="L62">        Order order = orderRepository.findByIdAndDeletedAtIsNull(id).orElseThrow(</span>
+<span class="nc" id="L63">                () -&gt; new EntityNotFoundException(&quot;Order Not Found&quot;));</span>
+
+<span class="fc" id="L65">        return HttpApiResponse.&lt;OrdersDto&gt;builder()</span>
+<span class="fc" id="L66">                .success(true)</span>
+<span class="fc" id="L67">                .status(HttpStatus.OK)</span>
+<span class="fc" id="L68">                .message(&quot;OK&quot;)</span>
+<span class="fc" id="L69">                .data(orderMapper.toDtoWithAllEntity(order))</span>
+<span class="fc" id="L70">                .build();</span>
+    }
+
+    @Override
+    public HttpApiResponse&lt;List&lt;OrdersDto&gt;&gt; getAllOrders() {
+<span class="fc" id="L75">        List&lt;Order&gt; ordersList = orderRepository.findAllByDeletedAtIsNull().orElseThrow(</span>
+<span class="nc" id="L76">                () -&gt; new EntityNotFoundException(&quot;Orders Not Found&quot;));</span>
+
+<span class="fc" id="L78">        return HttpApiResponse.&lt;List&lt;OrdersDto&gt;&gt;builder()</span>
+<span class="fc" id="L79">                .success(true)</span>
+<span class="fc" id="L80">                .status(HttpStatus.OK)</span>
+<span class="fc" id="L81">                .message(&quot;OK&quot;)</span>
+<span class="fc" id="L82">                .data(orderMapper.toDtoList(ordersList))</span>
+<span class="fc" id="L83">                .build();</span>
+    }
+
+    @Override
+    public HttpApiResponse&lt;OrdersDto&gt; updateOrderById(Long id, OrdersDto dto) {
+<span class="fc" id="L88">        Order order = orderRepository.findByIdAndDeletedAtIsNull(id).orElseThrow(</span>
+<span class="nc" id="L89">                () -&gt; new EntityNotFoundException(&quot;Order Not Found&quot;));</span>
+
+<span class="fc" id="L91">        orderMapper.updateEntity(dto, order);</span>
+<span class="fc" id="L92">        order = orderRepository.save(order);</span>
+
+<span class="fc" id="L94">        return HttpApiResponse.&lt;OrdersDto&gt;builder()</span>
+<span class="fc" id="L95">                .success(true)</span>
+<span class="fc" id="L96">                .status(HttpStatus.OK)</span>
+<span class="fc" id="L97">                .message(&quot;Order updated successfully&quot;)</span>
+<span class="fc" id="L98">                .data(orderMapper.toDto(order))</span>
+<span class="fc" id="L99">                .build();</span>
+    }
+
+    @Override
+    public HttpApiResponse&lt;String&gt; deleteOrderById(Long id) {
+
+<span class="fc" id="L105">        Order order = orderRepository.findByIdAndDeletedAtIsNull(id).orElseThrow(</span>
+<span class="nc" id="L106">                () -&gt; new EntityNotFoundException(&quot;Order Not Found&quot;));</span>
+
+<span class="fc" id="L108">        order.setDeletedAt(LocalDateTime.now());</span>
+
+<span class="fc" id="L110">        orderRepository.save(order);</span>
+
+<span class="fc" id="L112">        return HttpApiResponse.&lt;String&gt;builder()</span>
+<span class="fc" id="L113">                .success(true)</span>
+<span class="fc" id="L114">                .status(HttpStatus.OK)</span>
+<span class="fc" id="L115">                .message(&quot;Order deleted successfully&quot;)</span>
+<span class="fc" id="L116">                .build();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

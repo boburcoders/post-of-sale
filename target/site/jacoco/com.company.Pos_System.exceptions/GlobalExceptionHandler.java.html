@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="uz"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GlobalExceptionHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Pos-System</a> &gt; <a href="index.source.html" class="el_package">com.company.Pos_System.exceptions</a> &gt; <span class="el_source">GlobalExceptionHandler.java</span></div><h1>GlobalExceptionHandler.java</h1><pre class="source lang-java linenums">package com.company.Pos_System.exceptions;
+
+import com.company.Pos_System.dto.ErrorDto;
+import com.company.Pos_System.dto.HttpApiResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.*;
+
+@RestControllerAdvice
+<span class="fc" id="L16">public class GlobalExceptionHandler {</span>
+    @ExceptionHandler(ItemNotFoundException.class)
+    public ResponseEntity&lt;HttpApiResponse&lt;ErrorDto&gt;&gt; error_404(ItemNotFoundException e, HttpServletRequest request) {
+<span class="nc" id="L19">        ErrorDto errorDto = ErrorDto.builder()</span>
+<span class="nc" id="L20">                .errorCode(HttpStatus.NOT_FOUND.value())</span>
+<span class="nc" id="L21">                .errorPath(request.getRequestURI())</span>
+<span class="nc" id="L22">                .errorBody(e.getMessage())</span>
+<span class="nc" id="L23">                .build();</span>
+<span class="nc" id="L24">        HttpApiResponse&lt;ErrorDto&gt; response = HttpApiResponse.&lt;ErrorDto&gt;builder()</span>
+<span class="nc" id="L25">                .success(false)</span>
+<span class="nc" id="L26">                .status(HttpStatus.NOT_FOUND)</span>
+<span class="nc" id="L27">                .message(&quot;Item not found&quot;)</span>
+<span class="nc" id="L28">                .data(errorDto)</span>
+<span class="nc" id="L29">                .build();</span>
+
+<span class="nc" id="L31">        return new ResponseEntity&lt;&gt;(response, HttpStatus.NOT_FOUND);</span>
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity&lt;HttpApiResponse&lt;ErrorDto&gt;&gt; notValidExceptionHandler(MethodArgumentNotValidException e, HttpServletRequest request) {
+<span class="nc" id="L36">        Map&lt;String, List&lt;String&gt;&gt; errorBody = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L37" title="All 2 branches missed.">        for (FieldError fieldError : e.getFieldErrors()) {</span>
+<span class="nc" id="L38">            String field = fieldError.getField();</span>
+<span class="nc" id="L39">            String message = fieldError.getDefaultMessage();</span>
+<span class="nc" id="L40">            errorBody.compute(field, (s, strings) -&gt; {</span>
+<span class="nc" id="L41">                strings = Objects.requireNonNullElse(strings, new ArrayList&lt;&gt;());</span>
+<span class="nc" id="L42">                strings.add(message);</span>
+<span class="nc" id="L43">                return strings;</span>
+            });
+<span class="nc" id="L45">        }</span>
+<span class="nc" id="L46">        ErrorDto errorDto = ErrorDto.builder()</span>
+<span class="nc" id="L47">                .errorCode(HttpStatus.NOT_ACCEPTABLE.value())</span>
+<span class="nc" id="L48">                .errorPath(request.getRequestURI())</span>
+<span class="nc" id="L49">                .errorBody(errorBody)</span>
+<span class="nc" id="L50">                .build();</span>
+<span class="nc" id="L51">        HttpApiResponse&lt;ErrorDto&gt; response = HttpApiResponse.&lt;ErrorDto&gt;builder()</span>
+<span class="nc" id="L52">                .success(false)</span>
+<span class="nc" id="L53">                .status(HttpStatus.BAD_REQUEST)</span>
+<span class="nc" id="L54">                .message(&quot;Invalid request&quot;)</span>
+<span class="nc" id="L55">                .data(errorDto)</span>
+<span class="nc" id="L56">                .build();</span>
+<span class="nc" id="L57">        return new ResponseEntity&lt;&gt;(response, HttpStatus.BAD_REQUEST);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

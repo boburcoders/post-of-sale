@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="uz"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OrderItemMapper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Pos-System</a> &gt; <a href="index.source.html" class="el_package">com.company.Pos_System.service.mapper</a> &gt; <span class="el_source">OrderItemMapper.java</span></div><h1>OrderItemMapper.java</h1><pre class="source lang-java linenums">package com.company.Pos_System.service.mapper;
+
+import com.company.Pos_System.dto.OrderItemDto;
+import com.company.Pos_System.models.OrderItem;
+import com.company.Pos_System.repository.OrderItemRepository;
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Component
+<span class="fc" id="L14">@RequiredArgsConstructor</span>
+public class OrderItemMapper {
+    private final ProductMapper productMapper;
+    private final OrderItemRepository orderItemRepository;
+
+    public OrderItem toEntity(OrderItemDto dto) {
+<span class="nc" id="L20">        return OrderItem.builder()</span>
+<span class="nc" id="L21">                .price(dto.getPrice())</span>
+<span class="nc" id="L22">                .quantity(dto.getQuantity())</span>
+<span class="nc" id="L23">                .build();</span>
+    }
+
+    public OrderItemDto toDto(OrderItem entity) {
+<span class="nc" id="L27">        return OrderItemDto.builder()</span>
+<span class="nc" id="L28">                .id(entity.getId())</span>
+<span class="nc" id="L29">                .orderId(entity.getOrder().getId())</span>
+<span class="nc" id="L30">                .price(entity.getPrice())</span>
+<span class="nc" id="L31">                .productId(entity.getProduct().getId())</span>
+<span class="nc" id="L32">                .quantity(entity.getQuantity())</span>
+<span class="nc" id="L33">                .createdAt(entity.getCreatedAt())</span>
+<span class="nc" id="L34">                .build();</span>
+    }
+
+    public OrderItemDto toDtoWithAllEntity(OrderItem entity) {
+<span class="nc" id="L38">        return OrderItemDto.builder()</span>
+<span class="nc" id="L39">                .id(entity.getId())</span>
+<span class="nc" id="L40">                .price(entity.getPrice())</span>
+<span class="nc" id="L41">                .quantity(entity.getQuantity())</span>
+<span class="nc" id="L42">                .createdAt(entity.getCreatedAt())</span>
+<span class="nc" id="L43">                .build();</span>
+    }
+
+    public OrderItem updateEntity(OrderItem entity, OrderItemDto dto) {
+<span class="nc bnc" id="L47" title="All 2 branches missed.">        if (dto.getQuantity() != null) {</span>
+<span class="nc" id="L48">            entity.setQuantity(dto.getQuantity());</span>
+        }
+<span class="nc bnc" id="L50" title="All 2 branches missed.">        if (dto.getPrice() != null) {</span>
+<span class="nc" id="L51">            entity.setPrice(dto.getPrice());</span>
+        }
+<span class="nc" id="L53">        return entity;</span>
+    }
+
+    public List&lt;OrderItemDto&gt; toDtoList(List&lt;OrderItem&gt; entityList) {
+<span class="nc" id="L57">        List&lt;OrderItemDto&gt; dtoList = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">        for (OrderItem entity : entityList) {</span>
+<span class="nc" id="L59">            dtoList.add(toDto(entity));</span>
+<span class="nc" id="L60">        }</span>
+<span class="nc" id="L61">        return dtoList;</span>
+    }
+
+    public List&lt;Long&gt; toDtoListWithID(List&lt;OrderItem&gt; entityList) {
+<span class="nc" id="L65">        List&lt;Long&gt; dtoList = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">        for (OrderItem entity : entityList) {</span>
+<span class="nc" id="L67">            dtoList.add(entity.getId());</span>
+<span class="nc" id="L68">        }</span>
+<span class="nc" id="L69">        return dtoList;</span>
+    }
+
+    public List&lt;OrderItem&gt; toEntityList(List&lt;OrderItemDto&gt; dtoList) {
+<span class="nc" id="L73">        List&lt;OrderItem&gt; entityList = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">        for (OrderItemDto dto : dtoList) {</span>
+<span class="nc" id="L75">            entityList.add(toEntity(dto));</span>
+<span class="nc" id="L76">        }</span>
+<span class="nc" id="L77">        return entityList;</span>
+    }
+
+    public List&lt;OrderItem&gt; toEntityListFromId(List&lt;Long&gt; idList) {
+<span class="nc" id="L81">        List&lt;OrderItem&gt; entityList = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">        for (Long id : idList) {</span>
+<span class="nc" id="L83">            entityList.add(orderItemRepository.findByIdAndDeletedAtIsNull(id).orElseThrow(</span>
+<span class="nc" id="L84">                    () -&gt; new EntityNotFoundException(&quot;OrderItem with ID: &quot; + id)));</span>
+<span class="nc" id="L85">        }</span>
+<span class="nc" id="L86">        return entityList;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

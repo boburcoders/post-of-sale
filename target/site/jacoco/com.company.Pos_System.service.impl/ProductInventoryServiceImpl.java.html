@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="uz"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ProductInventoryServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Pos-System</a> &gt; <a href="index.source.html" class="el_package">com.company.Pos_System.service.impl</a> &gt; <span class="el_source">ProductInventoryServiceImpl.java</span></div><h1>ProductInventoryServiceImpl.java</h1><pre class="source lang-java linenums">package com.company.Pos_System.service.impl;
+
+import com.company.Pos_System.dto.HttpApiResponse;
+import com.company.Pos_System.dto.ProductInventoryDto;
+import com.company.Pos_System.exceptions.ItemNotFoundException;
+import com.company.Pos_System.models.Product;
+import com.company.Pos_System.models.ProductInventory;
+import com.company.Pos_System.models.WareHouse;
+import com.company.Pos_System.repository.ProductInventoryRepository;
+import com.company.Pos_System.repository.ProductRepository;
+import com.company.Pos_System.repository.WareHouseRepository;
+import com.company.Pos_System.service.ProductInventoryService;
+import com.company.Pos_System.service.mapper.ProductInventoryMapper;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Component
+<span class="fc" id="L22">@RequiredArgsConstructor</span>
+public class ProductInventoryServiceImpl implements ProductInventoryService {
+
+    private final ProductInventoryRepository productInventoryRepository;
+    private final WareHouseRepository wareHouseRepository;
+    private final ProductRepository productRepository;
+    private final ProductInventoryMapper productInventoryMapper;
+
+    @Override
+    public HttpApiResponse&lt;ProductInventoryDto&gt; createProductInventory(ProductInventoryDto dto) {
+        try {
+
+<span class="fc" id="L34">            Product product = productRepository.findByIdAndDeletedAtIsNull(dto.getProductId())</span>
+<span class="pc" id="L35">                    .orElseThrow(() -&gt; new ItemNotFoundException(&quot;Product not found with ID: &quot; + dto.getProductId()));</span>
+
+<span class="fc" id="L37">            WareHouse wareHouse = wareHouseRepository.findByIdAndDeletedAtIsNull(dto.getWarehouseId())</span>
+<span class="pc" id="L38">                    .orElseThrow(() -&gt; new ItemNotFoundException(&quot;Warehouse not found with ID: &quot; + dto.getWarehouseId()));</span>
+
+<span class="fc" id="L40">            ProductInventory entity = productInventoryMapper.toEntity(dto);</span>
+<span class="fc" id="L41">            entity.setProduct(product);</span>
+<span class="fc" id="L42">            entity.setWarehouse(wareHouse);</span>
+
+<span class="fc" id="L44">            productInventoryRepository.saveAndFlush(entity);</span>
+
+<span class="fc" id="L46">            return HttpApiResponse.&lt;ProductInventoryDto&gt;builder()</span>
+<span class="fc" id="L47">                    .success(true)</span>
+<span class="fc" id="L48">                    .status(HttpStatus.CREATED)</span>
+<span class="fc" id="L49">                    .message(&quot;Product Inventory created successfully&quot;)</span>
+<span class="fc" id="L50">                    .data(productInventoryMapper.toDto(entity))</span>
+<span class="fc" id="L51">                    .build();</span>
+<span class="fc" id="L52">        } catch (Exception e) {</span>
+<span class="fc" id="L53">            throw new RuntimeException(e.getMessage(), e.getCause());</span>
+        }
+    }
+
+    @Override
+    public HttpApiResponse&lt;ProductInventoryDto&gt; getProductInventoryById(Long id) {
+<span class="fc" id="L59">        ProductInventory productInventory = productInventoryRepository.findByIdAndDeletedAtIsNull(id)</span>
+<span class="pc" id="L60">                .orElseThrow(() -&gt; new ItemNotFoundException(&quot;Product Inventory not found with ID: &quot; + id));</span>
+
+
+<span class="fc" id="L63">        return HttpApiResponse.&lt;ProductInventoryDto&gt;builder()</span>
+<span class="fc" id="L64">                .success(true)</span>
+<span class="fc" id="L65">                .status(HttpStatus.OK)</span>
+<span class="fc" id="L66">                .message(&quot;OK&quot;)</span>
+<span class="fc" id="L67">                .data(productInventoryMapper.toDto(productInventory))</span>
+<span class="fc" id="L68">                .build();</span>
+    }
+
+    @Override
+    public HttpApiResponse&lt;List&lt;ProductInventoryDto&gt;&gt; getAllProductInventory() {
+<span class="fc" id="L73">        List&lt;ProductInventory&gt; productInventoryList = productInventoryRepository.findAllByDeletedAtIsNull()</span>
+<span class="pc" id="L74">                .orElseThrow(() -&gt; new ItemNotFoundException(&quot;Product Inventory List not found&quot;));</span>
+
+<span class="fc" id="L76">        return HttpApiResponse.&lt;List&lt;ProductInventoryDto&gt;&gt;builder()</span>
+<span class="fc" id="L77">                .success(true)</span>
+<span class="fc" id="L78">                .status(HttpStatus.OK)</span>
+<span class="fc" id="L79">                .message(&quot;OK&quot;)</span>
+<span class="fc" id="L80">                .data(productInventoryMapper.toDtoList(productInventoryList))</span>
+<span class="fc" id="L81">                .build();</span>
+    }
+
+    @Override
+    public HttpApiResponse&lt;ProductInventoryDto&gt; updateProductInventoryById(Long id, ProductInventoryDto dto) {
+
+<span class="fc" id="L87">        ProductInventory productInventory = productInventoryRepository.findByIdAndDeletedAtIsNull(id)</span>
+<span class="pc" id="L88">                .orElseThrow(() -&gt; new ItemNotFoundException(&quot;Product Inventory not found with ID: &quot; + id));</span>
+
+<span class="fc" id="L90">        ProductInventory updatedEntity = productInventoryMapper.updateEntity(productInventory, dto);</span>
+
+<span class="fc" id="L92">        productInventoryRepository.saveAndFlush(updatedEntity);</span>
+
+<span class="fc" id="L94">        return HttpApiResponse.&lt;ProductInventoryDto&gt;builder()</span>
+<span class="fc" id="L95">                .success(true)</span>
+<span class="fc" id="L96">                .status(HttpStatus.OK)</span>
+<span class="fc" id="L97">                .message(&quot;Product Inventory updated successfully&quot;)</span>
+<span class="fc" id="L98">                .data(productInventoryMapper.toDto(updatedEntity))</span>
+<span class="fc" id="L99">                .build();</span>
+    }
+
+    @Override
+    public HttpApiResponse&lt;String&gt; deleteProductInventoryById(Long id) {
+
+<span class="fc" id="L105">        ProductInventory productInventory = productInventoryRepository.findByIdAndDeletedAtIsNull(id)</span>
+<span class="pc" id="L106">                .orElseThrow(() -&gt; new ItemNotFoundException(&quot;Product Inventory not found with ID: &quot; + id));</span>
+
+<span class="fc" id="L108">        productInventory.setDeletedAt(LocalDateTime.now());</span>
+<span class="fc" id="L109">        productInventoryRepository.saveAndFlush(productInventory);</span>
+
+<span class="fc" id="L111">        return HttpApiResponse.&lt;String&gt;builder()</span>
+<span class="fc" id="L112">                .success(true)</span>
+<span class="fc" id="L113">                .status(HttpStatus.OK)</span>
+<span class="fc" id="L114">                .message(&quot;Product Inventory deleted successfully&quot;)</span>
+<span class="fc" id="L115">                .build();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

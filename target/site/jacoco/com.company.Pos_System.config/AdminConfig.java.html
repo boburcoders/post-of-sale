@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="uz"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AdminConfig.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Pos-System</a> &gt; <a href="index.source.html" class="el_package">com.company.Pos_System.config</a> &gt; <span class="el_source">AdminConfig.java</span></div><h1>AdminConfig.java</h1><pre class="source lang-java linenums">package com.company.Pos_System.config;
+
+import com.company.Pos_System.models.enums.UserRole;
+import com.company.Pos_System.models.Users;
+import com.company.Pos_System.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+@Configuration
+<span class="fc" id="L13">public class AdminConfig {</span>
+
+    @Value(&quot;${app.admin-username}&quot;)
+    private String adminUsername;
+
+    @Value(&quot;${app.user-password}&quot;)
+    private String userPassword;
+
+<span class="fc" id="L21">    BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder(12);</span>
+    @Bean
+    CommandLineRunner initAdmin(UserRepository userRepository) {
+<span class="fc" id="L24">        return args -&gt; {</span>
+<span class="pc bpc" id="L25" title="1 of 2 branches missed.">            if (userRepository.findByRoleAndDeletedAtIsNull((UserRole.ADMIN)).isEmpty()) {</span>
+<span class="nc" id="L26">                Users admin = Users.builder()</span>
+<span class="nc" id="L27">                        .fullName(&quot;Bobur Toshniyozov&quot;)</span>
+<span class="nc" id="L28">                        .username(adminUsername)</span>
+<span class="nc" id="L29">                        .password(bCryptPasswordEncoder.encode(userPassword)) // Secure default password</span>
+<span class="nc" id="L30">                        .role(UserRole.ADMIN)</span>
+<span class="nc" id="L31">                        .build();</span>
+<span class="nc" id="L32">                userRepository.save(admin);</span>
+<span class="nc" id="L33">                System.out.println(&quot;✅ Default ADMIN user created!&quot;);</span>
+<span class="nc" id="L34">            }else {</span>
+<span class="fc" id="L35">                System.out.println(&quot;❌User already exists!&quot;);</span>
+            }
+<span class="fc" id="L37">        };</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

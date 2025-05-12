@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="uz"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WareHouseServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Pos-System</a> &gt; <a href="index.source.html" class="el_package">com.company.Pos_System.service.impl</a> &gt; <span class="el_source">WareHouseServiceImpl.java</span></div><h1>WareHouseServiceImpl.java</h1><pre class="source lang-java linenums">package com.company.Pos_System.service.impl;
+
+import com.company.Pos_System.dto.HttpApiResponse;
+import com.company.Pos_System.dto.WareHouseDto;
+import com.company.Pos_System.exceptions.ItemNotFoundException;
+import com.company.Pos_System.models.WareHouse;
+import com.company.Pos_System.repository.WareHouseRepository;
+import com.company.Pos_System.service.WareHouseService;
+import com.company.Pos_System.service.mapper.WareHouseMapper;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Component
+<span class="fc" id="L18">@RequiredArgsConstructor</span>
+public class WareHouseServiceImpl implements WareHouseService {
+    private final WareHouseRepository wareHouseRepository;
+    private final WareHouseMapper wareHouseMapper;
+
+    @Override
+    public HttpApiResponse&lt;WareHouseDto&gt; createWareHouse(WareHouseDto dto) {
+        try {
+<span class="fc" id="L26">            return HttpApiResponse.&lt;WareHouseDto&gt;builder()</span>
+<span class="fc" id="L27">                    .success(true)</span>
+<span class="fc" id="L28">                    .status(HttpStatus.CREATED)</span>
+<span class="fc" id="L29">                    .message(&quot;WareHouse created successfully&quot;)</span>
+<span class="fc" id="L30">                    .data(wareHouseMapper.toDto(wareHouseRepository.save(wareHouseMapper.toEntity(dto))))</span>
+<span class="fc" id="L31">                    .build();</span>
+<span class="nc" id="L32">        } catch (Exception e) {</span>
+<span class="nc" id="L33">            throw new RuntimeException(e.getMessage(), e.getCause());</span>
+        }
+
+    }
+
+    @Override
+    public HttpApiResponse&lt;WareHouseDto&gt; getWareHouseById(Long id) {
+<span class="fc" id="L40">        WareHouse wareHouse = wareHouseRepository.findByIdAndDeletedAtIsNull(id)</span>
+<span class="pc" id="L41">                .orElseThrow(() -&gt; new ItemNotFoundException(&quot;WareHouse not found with id: &quot; + id));</span>
+
+<span class="fc" id="L43">        WareHouseDto dto = wareHouseMapper.toDto(wareHouse);</span>
+
+<span class="fc" id="L45">        return HttpApiResponse.&lt;WareHouseDto&gt;builder()</span>
+<span class="fc" id="L46">                .success(true)</span>
+<span class="fc" id="L47">                .status(HttpStatus.OK)</span>
+<span class="fc" id="L48">                .message(&quot;OK&quot;)</span>
+<span class="fc" id="L49">                .data(dto)</span>
+<span class="fc" id="L50">                .build();</span>
+    }
+
+    @Override
+    public HttpApiResponse&lt;List&lt;WareHouseDto&gt;&gt; getAllWareHouse() {
+<span class="fc" id="L55">        List&lt;WareHouse&gt; wareHouseList = wareHouseRepository.findAllByDeletedAtIsNull()</span>
+<span class="pc" id="L56">                .orElseThrow(() -&gt; new ItemNotFoundException(&quot;WareHouses not found&quot;));</span>
+
+<span class="fc" id="L58">        List&lt;WareHouseDto&gt; wareHouseDtoList = wareHouseMapper.toDtoList(wareHouseList);</span>
+
+<span class="fc" id="L60">        return HttpApiResponse.&lt;List&lt;WareHouseDto&gt;&gt;builder()</span>
+<span class="fc" id="L61">                .success(true)</span>
+<span class="fc" id="L62">                .status(HttpStatus.OK)</span>
+<span class="fc" id="L63">                .message(&quot;OK&quot;)</span>
+<span class="fc" id="L64">                .data(wareHouseDtoList)</span>
+<span class="fc" id="L65">                .build();</span>
+    }
+
+    @Override
+    public HttpApiResponse&lt;WareHouseDto&gt; updateWareHouseById(Long id, WareHouseDto dto) {
+
+<span class="fc" id="L71">        WareHouse wareHouse = wareHouseRepository.findByIdAndDeletedAtIsNull(id)</span>
+<span class="pc" id="L72">                .orElseThrow(() -&gt; new ItemNotFoundException(&quot;WareHouse not found with id: &quot; + id));</span>
+
+<span class="fc" id="L74">        WareHouse updatedEntity = wareHouseMapper.updateEntity(wareHouse, dto);</span>
+
+<span class="fc" id="L76">        wareHouseRepository.save(updatedEntity);</span>
+
+<span class="fc" id="L78">        return HttpApiResponse.&lt;WareHouseDto&gt;builder()</span>
+<span class="fc" id="L79">                .success(true)</span>
+<span class="fc" id="L80">                .status(HttpStatus.OK)</span>
+<span class="fc" id="L81">                .message(&quot;WareHouse updated successfully&quot;)</span>
+<span class="fc" id="L82">                .data(wareHouseMapper.toDto(updatedEntity))</span>
+<span class="fc" id="L83">                .build();</span>
+    }
+
+    @Override
+    public HttpApiResponse&lt;String&gt; deleteWareHouseById(Long id) {
+<span class="fc" id="L88">        WareHouse wareHouse = wareHouseRepository.findByIdAndDeletedAtIsNull(id)</span>
+<span class="pc" id="L89">                .orElseThrow(() -&gt; new ItemNotFoundException(&quot;WareHouse not found with id: &quot; + id));</span>
+<span class="fc" id="L90">        wareHouse.setDeletedAt(LocalDateTime.now());</span>
+<span class="fc" id="L91">        wareHouseRepository.save(wareHouse);</span>
+
+<span class="fc" id="L93">        return HttpApiResponse.&lt;String&gt;builder()</span>
+<span class="fc" id="L94">                .success(true)</span>
+<span class="fc" id="L95">                .status(HttpStatus.OK)</span>
+<span class="fc" id="L96">                .message(&quot;WareHouse deleted successfully&quot;)</span>
+<span class="fc" id="L97">                .build();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

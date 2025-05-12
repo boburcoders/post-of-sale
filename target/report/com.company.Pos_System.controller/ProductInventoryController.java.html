@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="uz"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ProductInventoryController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Pos-System</a> &gt; <a href="index.source.html" class="el_package">com.company.Pos_System.controller</a> &gt; <span class="el_source">ProductInventoryController.java</span></div><h1>ProductInventoryController.java</h1><pre class="source lang-java linenums">package com.company.Pos_System.controller;
+
+import com.company.Pos_System.dto.HttpApiResponse;
+import com.company.Pos_System.dto.ProductInventoryDto;
+import com.company.Pos_System.service.ProductInventoryService;
+import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+<span class="fc" id="L16">@RequiredArgsConstructor</span>
+@RequestMapping(&quot;api/productInventory&quot;)
+@EnableMethodSecurity
+public class ProductInventoryController {
+    private final ProductInventoryService productInventoryService;
+
+    @PostMapping
+    @PreAuthorize(&quot;hasAnyRole('ADMIN','MANAGER')&quot;)
+    @Operation(summary = &quot;Create a new ProductInventory&quot;, description = &quot;Create a new ProductInventory&quot;)
+    public HttpApiResponse&lt;ProductInventoryDto&gt; createProductInventory(@RequestBody @Valid ProductInventoryDto dto) {
+<span class="fc" id="L26">        return productInventoryService.createProductInventory(dto);</span>
+    }
+
+    @GetMapping(&quot;/{id}&quot;)
+    @PreAuthorize(&quot;isAuthenticated()&quot;)
+    @Operation(summary = &quot;Find a ProductInventory by Id&quot;, description = &quot;Find a  ProductInventory by Id&quot;)
+    public HttpApiResponse&lt;ProductInventoryDto&gt; getProductInventoryById(@PathVariable Long id) {
+<span class="fc" id="L33">        return productInventoryService.getProductInventoryById(id);</span>
+    }
+
+    @GetMapping(&quot;/get-all&quot;)
+    @PreAuthorize(&quot;isAuthenticated()&quot;)
+    @Operation(summary = &quot;Get All ProductInventory&quot;, description = &quot;Get All ProductInventory&quot;)
+    public HttpApiResponse&lt;List&lt;ProductInventoryDto&gt;&gt; getAllProductInventory() {
+<span class="fc" id="L40">        return productInventoryService.getAllProductInventory();</span>
+    }
+
+    @PutMapping(&quot;/{id}&quot;)
+    @PreAuthorize(&quot;hasAnyRole('ADMIN','MANAGER')&quot;)
+    @Operation(summary = &quot;Update a ProductInventory by Id&quot;, description = &quot;Update a  ProductInventory by Id&quot;)
+    public HttpApiResponse&lt;ProductInventoryDto&gt; updateProductInventoryById(@PathVariable Long id, @RequestBody ProductInventoryDto dto) {
+<span class="fc" id="L47">        return productInventoryService.updateProductInventoryById(id, dto);</span>
+    }
+
+    @DeleteMapping(&quot;/{id}&quot;)
+    @PreAuthorize(&quot;hasAnyRole('ADMIN','MANAGER')&quot;)
+    @Operation(summary = &quot;Delete a ProductInventory by Id&quot;, description = &quot;Delete a  ProductInventory by Id&quot;)
+    public HttpApiResponse&lt;String&gt; deleteProductInventoryById(@PathVariable Long id) {
+<span class="fc" id="L54">        return productInventoryService.deleteProductInventoryById(id);</span>
+    }
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

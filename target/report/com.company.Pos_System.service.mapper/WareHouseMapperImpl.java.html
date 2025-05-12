@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="uz"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WareHouseMapperImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Pos-System</a> &gt; <a href="index.source.html" class="el_package">com.company.Pos_System.service.mapper</a> &gt; <span class="el_source">WareHouseMapperImpl.java</span></div><h1>WareHouseMapperImpl.java</h1><pre class="source lang-java linenums">package com.company.Pos_System.service.mapper;
+
+import com.company.Pos_System.dto.WareHouseDto;
+import com.company.Pos_System.models.WareHouse;
+import java.util.ArrayList;
+import java.util.List;
+import javax.annotation.processing.Generated;
+import org.springframework.stereotype.Component;
+
+@Generated(
+    value = &quot;org.mapstruct.ap.MappingProcessor&quot;,
+    date = &quot;2025-05-12T11:19:48+0500&quot;,
+    comments = &quot;version: 1.6.0.Beta1, compiler: javac, environment: Java 17.0.14 (Amazon.com Inc.)&quot;
+)
+@Component
+<span class="fc" id="L16">public class WareHouseMapperImpl extends WareHouseMapper {</span>
+
+    @Override
+    public WareHouseDto toDto(WareHouse entity) {
+<span class="nc bnc" id="L20" title="All 2 branches missed.">        if ( entity == null ) {</span>
+<span class="nc" id="L21">            return null;</span>
+        }
+
+<span class="nc" id="L24">        WareHouseDto.WareHouseDtoBuilder wareHouseDto = WareHouseDto.builder();</span>
+
+<span class="nc" id="L26">        wareHouseDto.id( entity.getId() );</span>
+<span class="nc" id="L27">        wareHouseDto.name( entity.getName() );</span>
+<span class="nc" id="L28">        wareHouseDto.location( entity.getLocation() );</span>
+
+<span class="nc" id="L30">        return wareHouseDto.build();</span>
+    }
+
+    @Override
+    public WareHouse toEntity(WareHouseDto dto) {
+<span class="nc bnc" id="L35" title="All 2 branches missed.">        if ( dto == null ) {</span>
+<span class="nc" id="L36">            return null;</span>
+        }
+
+<span class="nc" id="L39">        WareHouse.WareHouseBuilder wareHouse = WareHouse.builder();</span>
+
+<span class="nc" id="L41">        wareHouse.name( dto.getName() );</span>
+<span class="nc" id="L42">        wareHouse.location( dto.getLocation() );</span>
+
+<span class="nc" id="L44">        return wareHouse.build();</span>
+    }
+
+    @Override
+    public WareHouse updateEntity(WareHouse entity, WareHouseDto dto) {
+<span class="nc bnc" id="L49" title="All 2 branches missed.">        if ( dto == null ) {</span>
+<span class="nc" id="L50">            return entity;</span>
+        }
+
+<span class="nc bnc" id="L53" title="All 2 branches missed.">        if ( dto.getId() != null ) {</span>
+<span class="nc" id="L54">            entity.setId( dto.getId() );</span>
+        }
+<span class="nc bnc" id="L56" title="All 2 branches missed.">        if ( dto.getName() != null ) {</span>
+<span class="nc" id="L57">            entity.setName( dto.getName() );</span>
+        }
+<span class="nc bnc" id="L59" title="All 2 branches missed.">        if ( dto.getLocation() != null ) {</span>
+<span class="nc" id="L60">            entity.setLocation( dto.getLocation() );</span>
+        }
+
+<span class="nc" id="L63">        return entity;</span>
+    }
+
+    @Override
+    public List&lt;WareHouseDto&gt; toDtoList(List&lt;WareHouse&gt; entityList) {
+<span class="nc bnc" id="L68" title="All 2 branches missed.">        if ( entityList == null ) {</span>
+<span class="nc" id="L69">            return null;</span>
+        }
+
+<span class="nc" id="L72">        List&lt;WareHouseDto&gt; list = new ArrayList&lt;WareHouseDto&gt;( entityList.size() );</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">        for ( WareHouse wareHouse : entityList ) {</span>
+<span class="nc" id="L74">            list.add( toDto( wareHouse ) );</span>
+<span class="nc" id="L75">        }</span>
+
+<span class="nc" id="L77">        return list;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="uz"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ProductController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Pos-System</a> &gt; <a href="index.source.html" class="el_package">com.company.Pos_System.controller</a> &gt; <span class="el_source">ProductController.java</span></div><h1>ProductController.java</h1><pre class="source lang-java linenums">package com.company.Pos_System.controller;
+
+import com.company.Pos_System.dto.HttpApiResponse;
+import com.company.Pos_System.dto.ProductDto;
+import com.company.Pos_System.service.ProductService;
+import io.swagger.v3.oas.annotations.Operation;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Set;
+
+@RestController
+<span class="fc" id="L16">@RequiredArgsConstructor</span>
+@RequestMapping(&quot;api/product&quot;)
+@EnableMethodSecurity
+public class ProductController {
+    private final ProductService productService;
+
+    @PostMapping
+    @PreAuthorize(&quot;hasAnyRole('ADMIN','MANAGER')&quot;)
+    @Operation(summary = &quot;Create Product&quot;,description = &quot;Create a Product with Category Id&quot;)
+    HttpApiResponse&lt;ProductDto&gt; createProduct(@RequestBody ProductDto dto) {
+<span class="fc" id="L26">        return productService.createProduct(dto);</span>
+    }
+
+    @GetMapping(&quot;/get-all&quot;)
+    @PreAuthorize(&quot;isAuthenticated()&quot;)
+    @Operation(summary = &quot;Get All&quot;,description = &quot;Get All Products&quot;)
+    HttpApiResponse&lt;Set&lt;ProductDto&gt;&gt; getAllProducts() {
+<span class="fc" id="L33">        return productService.getAllProducts();</span>
+    }
+
+    @GetMapping(&quot;/get-allBy-category/{categoryName}&quot;)
+    @PreAuthorize(&quot;isAuthenticated()&quot;)
+    @Operation(summary = &quot;Get All  by CategoryName&quot;,description = &quot;Get All Products By Category Name&quot;)
+    HttpApiResponse&lt;Set&lt;ProductDto&gt;&gt; getAllProductsByCategory(@PathVariable String categoryName) {
+<span class="fc" id="L40">        return productService.getAllProductsByCategory(categoryName);</span>
+    }
+
+    @GetMapping(&quot;/{id}&quot;)
+    @PreAuthorize(&quot;isAuthenticated()&quot;)
+
+    @Operation(summary = &quot;Get Product by Id&quot;,description = &quot;Get Product with Id&quot;)
+    HttpApiResponse&lt;ProductDto&gt; getProductById(@PathVariable Long id) {
+<span class="fc" id="L48">        return productService.getProductById(id);</span>
+    }
+
+    @PutMapping(&quot;/{id}&quot;)
+    @PreAuthorize(&quot;hasAnyRole('ADMIN','MANAGER')&quot;)
+    @Operation(summary = &quot;Update Product by Id&quot;,description = &quot;Update Product with Id&quot;)
+    HttpApiResponse&lt;ProductDto&gt; updateProductById(@PathVariable Long id, @RequestBody ProductDto dto) {
+<span class="fc" id="L55">        return productService.updateProductById(id, dto);</span>
+    }
+
+    @DeleteMapping(&quot;/{id}&quot;)
+    @PreAuthorize(&quot;hasAnyRole('ADMIN','MANAGER')&quot;)
+    @Operation(summary = &quot;Delete Product by Id&quot;,description = &quot;Delete Product with Id&quot;)
+    HttpApiResponse&lt;String&gt; deleteProductById(@PathVariable Long id) {
+<span class="fc" id="L62">        return productService.deleteProductById(id);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

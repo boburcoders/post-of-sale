@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.company.Pos_System.service.impl.CategoryServiceImplTest
+-------------------------------------------------------------------------------
+Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.259 s -- in com.company.Pos_System.service.impl.CategoryServiceImplTest

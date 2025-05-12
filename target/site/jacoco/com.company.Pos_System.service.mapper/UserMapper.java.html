@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="uz"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserMapper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Pos-System</a> &gt; <a href="index.source.html" class="el_package">com.company.Pos_System.service.mapper</a> &gt; <span class="el_source">UserMapper.java</span></div><h1>UserMapper.java</h1><pre class="source lang-java linenums">package com.company.Pos_System.service.mapper;
+
+import com.company.Pos_System.dto.UserDto;
+import com.company.Pos_System.models.Users;
+import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Component
+<span class="fc" id="L11">public class UserMapper {</span>
+
+    public Users ToEntity(UserDto dto) {
+<span class="nc" id="L14">        return Users.builder()</span>
+<span class="nc" id="L15">                .fullName(dto.getFullName())</span>
+<span class="nc" id="L16">                .username(dto.getUsername())</span>
+<span class="nc" id="L17">                .password(dto.getPassword())</span>
+<span class="nc" id="L18">                .role(dto.getRole())</span>
+<span class="nc" id="L19">                .build();</span>
+    }
+
+    public UserDto ToDto(Users entity) {
+<span class="nc" id="L23">        return UserDto.builder()</span>
+<span class="nc" id="L24">                .id(entity.getId())</span>
+<span class="nc" id="L25">                .fullName(entity.getFullName())</span>
+<span class="nc" id="L26">                .username(entity.getUsername())</span>
+<span class="nc" id="L27">                .role(entity.getRole())</span>
+<span class="nc" id="L28">                .build();</span>
+    }
+
+    public List&lt;UserDto&gt; ToDtoList(List&lt;Users&gt; entity) {
+<span class="nc" id="L32">        List&lt;UserDto&gt; dtos = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L33" title="All 2 branches missed.">        for (Users user : entity) {</span>
+<span class="nc" id="L34">            dtos.add(ToDto(user));</span>
+<span class="nc" id="L35">        }</span>
+<span class="nc" id="L36">        return dtos;</span>
+    }
+
+    public Users updateEntity(Users entity, UserDto dto) {
+<span class="nc bnc" id="L40" title="All 2 branches missed.">        if (dto.getFullName() != null) {</span>
+<span class="nc" id="L41">            entity.setFullName(dto.getFullName());</span>
+        }
+<span class="nc bnc" id="L43" title="All 2 branches missed.">        if (dto.getUsername() != null) {</span>
+<span class="nc" id="L44">            entity.setUsername(dto.getUsername());</span>
+        }
+<span class="nc bnc" id="L46" title="All 2 branches missed.">        if (dto.getPassword() != null) {</span>
+<span class="nc" id="L47">            entity.setPassword(dto.getPassword());</span>
+        }
+<span class="nc bnc" id="L49" title="All 2 branches missed.">        if (dto.getRole() != null) {</span>
+<span class="nc" id="L50">            entity.setRole(dto.getRole());</span>
+        }
+<span class="nc" id="L52">        return entity;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

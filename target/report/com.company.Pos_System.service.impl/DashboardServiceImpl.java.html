@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="uz"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DashboardServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Pos-System</a> &gt; <a href="index.source.html" class="el_package">com.company.Pos_System.service.impl</a> &gt; <span class="el_source">DashboardServiceImpl.java</span></div><h1>DashboardServiceImpl.java</h1><pre class="source lang-java linenums">package com.company.Pos_System.service.impl;
+
+import com.company.Pos_System.dto.*;
+import com.company.Pos_System.repository.OrderRepository;
+import com.company.Pos_System.service.DashboardService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Component
+<span class="fc" id="L15">@RequiredArgsConstructor</span>
+public class DashboardServiceImpl implements DashboardService {
+    private final OrderRepository orderRepository;
+
+    @Override
+    public HttpApiResponse&lt;RevenueStatsDto&gt; getRevenueStats() {
+        try {
+<span class="nc" id="L22">            return HttpApiResponse.&lt;RevenueStatsDto&gt;builder()</span>
+<span class="nc" id="L23">                    .success(true)</span>
+<span class="nc" id="L24">                    .message(&quot;OK&quot;)</span>
+<span class="nc" id="L25">                    .status(HttpStatus.OK)</span>
+<span class="nc" id="L26">                    .data(getRevenueStatsFromDb())</span>
+<span class="nc" id="L27">                    .build();</span>
+<span class="nc" id="L28">        } catch (Exception e) {</span>
+<span class="nc" id="L29">            throw new RuntimeException(e.getMessage(), e.getCause());</span>
+        }
+    }
+
+    @Override
+    public HttpApiResponse&lt;SalesTodayDto&gt; getSalesTodayStats() {
+        try {
+<span class="nc" id="L36">            return HttpApiResponse.&lt;SalesTodayDto&gt;builder()</span>
+<span class="nc" id="L37">                    .success(true)</span>
+<span class="nc" id="L38">                    .message(&quot;OK&quot;)</span>
+<span class="nc" id="L39">                    .status(HttpStatus.OK)</span>
+<span class="nc" id="L40">                    .data(getSalesTodayFromDb())</span>
+<span class="nc" id="L41">                    .build();</span>
+<span class="nc" id="L42">        } catch (Exception e) {</span>
+<span class="nc" id="L43">            throw new RuntimeException(e.getMessage(), e.getCause());</span>
+        }
+    }
+
+    @Override
+    public HttpApiResponse&lt;TotalOrdersDto&gt; getTotalOrdersStats() {
+        try {
+<span class="nc" id="L50">            return HttpApiResponse.&lt;TotalOrdersDto&gt;builder()</span>
+<span class="nc" id="L51">                    .success(true)</span>
+<span class="nc" id="L52">                    .message(&quot;OK&quot;)</span>
+<span class="nc" id="L53">                    .status(HttpStatus.OK)</span>
+<span class="nc" id="L54">                    .data(getTotalOrderFromDb())</span>
+<span class="nc" id="L55">                    .build();</span>
+<span class="nc" id="L56">        } catch (Exception e) {</span>
+<span class="nc" id="L57">            throw new RuntimeException(e.getMessage(), e.getCause());</span>
+        }
+    }
+
+
+    public TotalOrdersDto getTotalOrderFromDb() {
+<span class="nc" id="L63">        List&lt;Object[]&gt; result = orderRepository.getTotalOrdersStatsRaw();</span>
+
+<span class="nc bnc" id="L65" title="All 2 branches missed.">        if (result.isEmpty()) {</span>
+<span class="nc" id="L66">            return new TotalOrdersDto(0L, BigDecimal.ZERO, &quot;same&quot;);</span>
+        }
+
+<span class="nc" id="L69">        Object[] row = result.get(0); // First row from the result</span>
+
+<span class="nc" id="L71">        Long totalOrders = ((Number) row[0]).longValue();             // column 1</span>
+<span class="nc" id="L72">        BigDecimal ordersGrowth = new BigDecimal(row[1].toString());  // column 2</span>
+<span class="nc" id="L73">        String indicator = (String) row[2];                            // column 3</span>
+
+<span class="nc" id="L75">        return new TotalOrdersDto(totalOrders, ordersGrowth, indicator);</span>
+    }
+
+
+    public SalesTodayDto getSalesTodayFromDb() {
+<span class="nc" id="L80">        Object[] row = orderRepository.getSalesTodayRaw().get(0);</span>
+
+<span class="nc" id="L82">        BigDecimal salesToday = new BigDecimal(row[0].toString());</span>
+<span class="nc" id="L83">        BigDecimal growth = new BigDecimal(row[1].toString());</span>
+<span class="nc" id="L84">        String indicator = (String) row[2];</span>
+
+<span class="nc" id="L86">        return new SalesTodayDto(salesToday, growth, indicator);</span>
+    }
+
+
+    public RevenueStatsDto getRevenueStatsFromDb() {
+<span class="nc" id="L91">        Object[] row = orderRepository.getRevenueStatsRaw().get(0);</span>
+
+<span class="nc" id="L93">        BigDecimal totalRevenue = new BigDecimal(row[0].toString());</span>
+<span class="nc" id="L94">        BigDecimal growth = new BigDecimal(row[1].toString());</span>
+<span class="nc" id="L95">        String indicator = row[2].toString();</span>
+
+<span class="nc" id="L97">        return new RevenueStatsDto(totalRevenue, growth, indicator);</span>
+    }
+
+    @Override
+    public HttpApiResponse&lt;List&lt;SalesOverviewDto&gt;&gt; getSalesOverview() {
+        try {
+<span class="nc" id="L103">            List&lt;Object[]&gt; rows = orderRepository.getSalesOverview();</span>
+<span class="nc" id="L104">            List&lt;SalesOverviewDto&gt; collect = rows.stream()</span>
+<span class="nc" id="L105">                    .map(row -&gt; new SalesOverviewDto(</span>
+                            (String) row[0],
+<span class="nc bnc" id="L107" title="All 2 branches missed.">                            row[1] != null ? ((Number) row[1]).doubleValue() : 0.0</span>
+                    ))
+<span class="nc" id="L109">                    .toList();</span>
+<span class="nc" id="L110">            return HttpApiResponse.&lt;List&lt;SalesOverviewDto&gt;&gt;builder()</span>
+<span class="nc" id="L111">                    .success(true)</span>
+<span class="nc" id="L112">                    .status(HttpStatus.OK)</span>
+<span class="nc" id="L113">                    .message(&quot;OK&quot;)</span>
+<span class="nc" id="L114">                    .data(collect)</span>
+<span class="nc" id="L115">                    .build();</span>
+
+<span class="nc" id="L117">        } catch (Exception e) {</span>
+<span class="nc" id="L118">            throw new RuntimeException(e.getMessage(), e.getCause());</span>
+        }
+    }
+
+    @Override
+    public HttpApiResponse&lt;List&lt;SalesByCategoryDto&gt;&gt; getSalesByCategory() {
+        try {
+<span class="nc" id="L125">            List&lt;Object[]&gt; rows = orderRepository.getSalesByCategory();</span>
+<span class="nc" id="L126">            List&lt;SalesByCategoryDto&gt; list = rows.stream()</span>
+<span class="nc" id="L127">                    .map(row -&gt; new SalesByCategoryDto(</span>
+                            (String) row[0],
+<span class="nc bnc" id="L129" title="All 2 branches missed.">                            row[1] != null ? ((Number) row[1]).doubleValue() : 0.0</span>
+                    ))
+<span class="nc" id="L131">                    .toList();</span>
+
+<span class="nc" id="L133">            return HttpApiResponse.&lt;List&lt;SalesByCategoryDto&gt;&gt;builder()</span>
+<span class="nc" id="L134">                    .success(true)</span>
+<span class="nc" id="L135">                    .status(HttpStatus.OK)</span>
+<span class="nc" id="L136">                    .message(&quot;OK&quot;)</span>
+<span class="nc" id="L137">                    .data(list)</span>
+<span class="nc" id="L138">                    .build();</span>
+<span class="nc" id="L139">        } catch (Exception e) {</span>
+<span class="nc" id="L140">            throw new RuntimeException(e.getMessage(), e.getCause());</span>
+        }
+    }
+
+    @Override
+    public HttpApiResponse&lt;List&lt;TopSellingProductDto&gt;&gt; getTopSellingProducts() {
+        try {
+<span class="nc" id="L147">            List&lt;Object[]&gt; rows = orderRepository.getTopSellingProducts();</span>
+<span class="nc" id="L148">            List&lt;TopSellingProductDto&gt; topSellingProductDtos = rows.stream()</span>
+<span class="nc" id="L149">                    .map(row -&gt; new TopSellingProductDto(</span>
+                            (String) row[0],
+<span class="nc" id="L151">                            ((Number) row[1]).intValue()</span>
+                    ))
+<span class="nc" id="L153">                    .toList();</span>
+
+<span class="nc" id="L155">            return HttpApiResponse.&lt;List&lt;TopSellingProductDto&gt;&gt;builder()</span>
+<span class="nc" id="L156">                    .success(true)</span>
+<span class="nc" id="L157">                    .status(HttpStatus.OK)</span>
+<span class="nc" id="L158">                    .message(&quot;OK&quot;)</span>
+<span class="nc" id="L159">                    .data(topSellingProductDtos)</span>
+<span class="nc" id="L160">                    .build();</span>
+<span class="nc" id="L161">        } catch (Exception e) {</span>
+<span class="nc" id="L162">            throw new RuntimeException(e.getMessage(), e.getCause());</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

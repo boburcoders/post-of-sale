@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="uz"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Pos-System</a> &gt; <a href="index.source.html" class="el_package">com.company.Pos_System.controller</a> &gt; <span class="el_source">UserController.java</span></div><h1>UserController.java</h1><pre class="source lang-java linenums">package com.company.Pos_System.controller;
+
+import com.company.Pos_System.config.UserPrincipal;
+import com.company.Pos_System.dto.HttpApiResponse;
+import com.company.Pos_System.dto.LoginResponseDto;
+import com.company.Pos_System.dto.TokenRequestDto;
+import com.company.Pos_System.dto.UserDto;
+import com.company.Pos_System.config.JwtTokenUtil;
+import com.company.Pos_System.models.Users;
+import com.company.Pos_System.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+<span class="fc" id="L25">@RequiredArgsConstructor</span>
+@RequestMapping(&quot;api/user&quot;)
+@EnableMethodSecurity
+public class UserController {
+    private final UserService userService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtTokenUtil jwtTokenUtil;
+
+
+    @PostMapping(&quot;/register&quot;)
+    @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
+    @Operation(summary = &quot;Create a new User&quot;, description = &quot;Create a new User&quot;)
+    public HttpApiResponse&lt;UserDto&gt; registerUser(@RequestBody UserDto dto) {
+<span class="fc" id="L38">        return this.userService.registerUser(dto);</span>
+    }
+
+    @PostMapping(&quot;/login&quot;)
+    @Operation(summary = &quot;Get JWT Token&quot;, description = &quot;Get Token with your Username and Password&quot;)
+    public HttpApiResponse&lt;LoginResponseDto&gt; userLogin(@RequestBody TokenRequestDto dto) {
+<span class="fc" id="L44">        return userService.userLogin(dto);</span>
+    }
+
+
+
+    @GetMapping(&quot;/by-id/{id}&quot;)
+    @Operation(summary = &quot;Get user by Id&quot;, description = &quot;Get User By Id&quot;)
+    @PreAuthorize(&quot;hasAnyRole('ADMIN','MANAGER')&quot;)
+    public HttpApiResponse&lt;UserDto&gt; getUserById(@PathVariable Long id) {
+<span class="fc" id="L53">        return this.userService.getUserById(id);</span>
+    }
+
+    @GetMapping(&quot;/by-username/{username}&quot;)
+    @PreAuthorize(&quot;hasAnyRole('ADMIN','MANAGER')&quot;)
+    @Operation(summary = &quot;Get user by username&quot;, description = &quot;Get User By username&quot;)
+    public HttpApiResponse&lt;List&lt;UserDto&gt;&gt; findUsersByUsername(@PathVariable String username) {
+<span class="nc" id="L60">        return this.userService.findUsersByUsername(username);</span>
+    }
+
+    @Operation(summary = &quot;Get all users&quot;, description = &quot;Get all user list&quot;)
+    @GetMapping(&quot;/get-all&quot;)
+    @PreAuthorize(&quot;hasAnyRole('ADMIN','MANAGER')&quot;)
+    public HttpApiResponse&lt;List&lt;UserDto&gt;&gt; getAllUsers() {
+<span class="fc" id="L67">        return userService.getAllUsers();</span>
+    }
+
+    @PutMapping(&quot;/{id}&quot;)
+    @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
+    @Operation(summary = &quot;Update user by Id&quot;, description = &quot;Update User By Id&quot;)
+    public HttpApiResponse&lt;UserDto&gt; updateUser(@PathVariable Long id, @RequestBody UserDto dto) {
+<span class="fc" id="L74">        return this.userService.updateUser(id, dto);</span>
+    }
+
+    @PutMapping(&quot;/role/{id}&quot;)
+    @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
+    @Operation(summary = &quot;Update userRole&quot;, description = &quot;Update UserRole by Id&quot;)
+    public HttpApiResponse&lt;UserDto&gt; updateUserRole(@PathVariable Long id, @RequestBody UserDto dto) {
+<span class="nc" id="L81">        return this.userService.updateUserRole(id, dto);</span>
+    }
+
+    @DeleteMapping(&quot;/{id}&quot;)
+    @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
+    @Operation(summary = &quot;Delete user by Id&quot;, description = &quot;Delete User By Id&quot;)
+    public HttpApiResponse&lt;String&gt; deleteUserById(@PathVariable Long id) {
+<span class="fc" id="L88">        return this.userService.deleteUserById(id);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

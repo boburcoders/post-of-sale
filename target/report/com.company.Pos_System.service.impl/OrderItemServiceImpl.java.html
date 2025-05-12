@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="uz"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OrderItemServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Pos-System</a> &gt; <a href="index.source.html" class="el_package">com.company.Pos_System.service.impl</a> &gt; <span class="el_source">OrderItemServiceImpl.java</span></div><h1>OrderItemServiceImpl.java</h1><pre class="source lang-java linenums">package com.company.Pos_System.service.impl;
+
+import com.company.Pos_System.dto.HttpApiResponse;
+import com.company.Pos_System.dto.OrderItemDto;
+import com.company.Pos_System.models.*;
+import com.company.Pos_System.repository.OrderItemRepository;
+import com.company.Pos_System.repository.OrderRepository;
+import com.company.Pos_System.repository.ProductInventoryRepository;
+import com.company.Pos_System.repository.ProductRepository;
+import com.company.Pos_System.service.OrderItemService;
+import com.company.Pos_System.service.mapper.OrderItemMapper;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+
+@Component
+<span class="fc" id="L29">@RequiredArgsConstructor</span>
+public class OrderItemServiceImpl implements OrderItemService {
+    private final OrderItemRepository orderItemRepository;
+    private final ProductRepository productRepository;
+    private final OrderRepository orderRepository;
+    private final OrderItemMapper orderItemMapper;
+    private final ProductInventoryRepository productInventoryRepository;
+
+    @Override
+    @Transactional
+    public HttpApiResponse&lt;List&lt;OrderItemDto&gt;&gt; createOrderItem(List&lt;OrderItemDto&gt; dtoList) {
+<span class="pc bpc" id="L40" title="2 of 4 branches missed.">        if (dtoList == null || dtoList.isEmpty()) {</span>
+<span class="nc" id="L41">            return HttpApiResponse.&lt;List&lt;OrderItemDto&gt;&gt;builder()</span>
+<span class="nc" id="L42">                    .status(HttpStatus.BAD_REQUEST)</span>
+<span class="nc" id="L43">                    .message(&quot;OrderItem list cannot be null or empty&quot;)</span>
+<span class="nc" id="L44">                    .build();</span>
+        }
+
+<span class="fc" id="L47">        List&lt;OrderItem&gt; orderItemsToSave = new ArrayList&lt;&gt;();</span>
+
+<span class="fc bfc" id="L49" title="All 2 branches covered.">        for (OrderItemDto dto : dtoList) {</span>
+<span class="fc" id="L50">            Objects.requireNonNull(dto, &quot;OrderItem DTO cannot be null&quot;);</span>
+<span class="fc" id="L51">            Objects.requireNonNull(dto.getProductId(), &quot;Product ID cannot be null&quot;);</span>
+<span class="fc" id="L52">            Objects.requireNonNull(dto.getOrderId(), &quot;Order ID cannot be null&quot;);</span>
+
+<span class="fc" id="L54">            Product product = productRepository.findByIdAndDeletedAtIsNull(dto.getProductId())</span>
+<span class="pc" id="L55">                    .orElseThrow(() -&gt; new EntityNotFoundException(&quot;Product not found with ID: &quot; + dto.getProductId()));</span>
+<span class="fc" id="L56">            Order order = orderRepository.findByIdAndDeletedAtIsNull(dto.getOrderId())</span>
+<span class="pc" id="L57">                    .orElseThrow(() -&gt; new EntityNotFoundException(&quot;Order not found with ID: &quot; + dto.getOrderId()));</span>
+
+<span class="pc bpc" id="L59" title="2 of 4 branches missed.">            BigDecimal quantity = (dto.getQuantity() != null &amp;&amp; dto.getQuantity().compareTo(BigDecimal.ZERO) &gt; 0)</span>
+<span class="fc" id="L60">                    ? dto.getQuantity()</span>
+<span class="pc" id="L61">                    : BigDecimal.ONE;</span>
+
+<span class="fc" id="L63">            WareHouse warehouse = product.getWareHouse(); // Or fetch by dto.getWarehouseId()</span>
+
+<span class="fc" id="L65">            ProductInventory inventory = productInventoryRepository</span>
+<span class="fc" id="L66">                    .findByProductAndWarehouse(product, warehouse)</span>
+<span class="pc" id="L67">                    .orElseThrow(() -&gt; new EntityNotFoundException(&quot;Inventory not found for product: &quot; + product.getName()));</span>
+
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">            if (BigDecimal.valueOf(inventory.getQuantity()).compareTo(quantity) &lt; 0) {</span>
+<span class="nc" id="L70">                throw new RuntimeException(&quot;Not enough stock for product: &quot; + product.getName());</span>
+            }
+
+<span class="fc" id="L73">            System.out.println(&quot;Before: &quot; + inventory.getQuantity());</span>
+<span class="fc" id="L74">            inventory.setQuantity(inventory.getQuantity() - quantity.intValue());</span>
+<span class="fc" id="L75">            System.out.println(&quot;After: &quot; + inventory.getQuantity());</span>
+<span class="fc" id="L76">            productInventoryRepository.save(inventory);</span>
+
+
+
+<span class="fc" id="L80">            BigDecimal totalPrice = product.getPrice().multiply(quantity);</span>
+
+<span class="pc bpc" id="L82" title="1 of 2 branches missed.">            BigDecimal orderTotalPrice = (order.getTotal() != null)</span>
+<span class="fc" id="L83">                    ? order.getTotal().add(totalPrice)</span>
+<span class="pc" id="L84">                    : totalPrice;</span>
+<span class="fc" id="L85">            order.setTotal(orderTotalPrice);</span>
+
+<span class="fc" id="L87">            OrderItem entity = orderItemMapper.toEntity(dto);</span>
+<span class="fc" id="L88">            entity.setOrder(order);</span>
+<span class="fc" id="L89">            entity.setProduct(product);</span>
+<span class="fc" id="L90">            entity.setQuantity(quantity);</span>
+<span class="fc" id="L91">            entity.setPrice(totalPrice);</span>
+
+<span class="fc" id="L93">            orderItemsToSave.add(entity);</span>
+
+<span class="pc bpc" id="L95" title="1 of 2 branches missed.">            List&lt;OrderItem&gt; existingItems = order.getOrderItems() != null ? order.getOrderItems() : new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L96">            existingItems.add(entity);</span>
+<span class="fc" id="L97">            order.setOrderItems(existingItems);</span>
+<span class="fc" id="L98">        }</span>
+
+<span class="fc" id="L100">        List&lt;OrderItem&gt; savedOrderItems = orderItemRepository.saveAll(orderItemsToSave);</span>
+
+<span class="fc" id="L102">        Set&lt;Order&gt; ordersToSave = orderItemsToSave.stream()</span>
+<span class="fc" id="L103">                .map(OrderItem::getOrder)</span>
+<span class="fc" id="L104">                .collect(Collectors.toSet());</span>
+<span class="fc" id="L105">        orderRepository.saveAll(ordersToSave);</span>
+
+<span class="fc" id="L107">        return HttpApiResponse.&lt;List&lt;OrderItemDto&gt;&gt;builder()</span>
+<span class="fc" id="L108">                .success(true)</span>
+<span class="fc" id="L109">                .status(HttpStatus.CREATED)</span>
+<span class="fc" id="L110">                .message(&quot;OrderItems created successfully&quot;)</span>
+<span class="fc" id="L111">                .data(orderItemMapper.toDtoList(savedOrderItems))</span>
+<span class="fc" id="L112">                .build();</span>
+    }
+
+
+
+    @Override
+    public HttpApiResponse&lt;OrderItemDto&gt; getOrderItemById(Long id) {
+<span class="fc" id="L119">        OrderItem orderItem = orderItemRepository.findByIdAndDeletedAtIsNull(id).orElseThrow(</span>
+<span class="nc" id="L120">                () -&gt; new EntityNotFoundException(&quot;OrderItem not found&quot;));</span>
+
+<span class="fc" id="L122">        return HttpApiResponse.&lt;OrderItemDto&gt;builder()</span>
+<span class="fc" id="L123">                .success(true)</span>
+<span class="fc" id="L124">                .status(HttpStatus.OK)</span>
+<span class="fc" id="L125">                .message(&quot;OK&quot;)</span>
+<span class="fc" id="L126">                .data(orderItemMapper.toDto(orderItem))</span>
+<span class="fc" id="L127">                .build();</span>
+    }
+
+    @Override
+    public HttpApiResponse&lt;List&lt;OrderItemDto&gt;&gt; getAllOrderItems() {
+<span class="fc" id="L132">        List&lt;OrderItem&gt; orderItemsList = orderItemRepository.findAllByDeletedAtIsNull().orElseThrow(</span>
+<span class="nc" id="L133">                () -&gt; new EntityNotFoundException(&quot;OrderItem List not found&quot;));</span>
+
+<span class="fc" id="L135">        return HttpApiResponse.&lt;List&lt;OrderItemDto&gt;&gt;builder()</span>
+<span class="fc" id="L136">                .success(true)</span>
+<span class="fc" id="L137">                .status(HttpStatus.OK)</span>
+<span class="fc" id="L138">                .message(&quot;OK&quot;)</span>
+<span class="fc" id="L139">                .data(orderItemMapper.toDtoList(orderItemsList))</span>
+<span class="fc" id="L140">                .build();</span>
+    }
+
+    @Override
+    public HttpApiResponse&lt;OrderItemDto&gt; updateOrderById(Long id, OrderItemDto dto) {
+
+<span class="fc" id="L146">        OrderItem orderItem = orderItemRepository.findByIdAndDeletedAtIsNull(id).orElseThrow(</span>
+<span class="nc" id="L147">                () -&gt; new EntityNotFoundException(&quot;OrderItem not found&quot;));</span>
+
+<span class="fc" id="L149">        OrderItem updateEntity = orderItemMapper.updateEntity(orderItem, dto);</span>
+
+<span class="fc" id="L151">        orderItemRepository.save(updateEntity);</span>
+
+<span class="fc" id="L153">        return HttpApiResponse.&lt;OrderItemDto&gt;builder()</span>
+<span class="fc" id="L154">                .success(true)</span>
+<span class="fc" id="L155">                .status(HttpStatus.OK)</span>
+<span class="fc" id="L156">                .message(&quot;OrderItems updated successfully&quot;)</span>
+<span class="fc" id="L157">                .data(orderItemMapper.toDto(updateEntity))</span>
+<span class="fc" id="L158">                .build();</span>
+    }
+
+    @Override
+    public HttpApiResponse&lt;String&gt; deleteOrderById(Long id) {
+
+<span class="fc" id="L164">        OrderItem orderItem = orderItemRepository.findByIdAndDeletedAtIsNull(id).orElseThrow(</span>
+<span class="nc" id="L165">                () -&gt; new EntityNotFoundException(&quot;OrderItem not found&quot;));</span>
+
+<span class="fc" id="L167">        orderItem.setDeletedAt(LocalDateTime.now());</span>
+
+<span class="fc" id="L169">        orderItemRepository.save(orderItem);</span>
+
+<span class="fc" id="L171">        return HttpApiResponse.&lt;String&gt;builder()</span>
+<span class="fc" id="L172">                .success(true)</span>
+<span class="fc" id="L173">                .status(HttpStatus.OK)</span>
+<span class="fc" id="L174">                .message(&quot;OrderItem deleted successfully&quot;)</span>
+<span class="fc" id="L175">                .build();</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

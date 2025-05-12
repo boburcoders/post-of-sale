@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="uz"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ProductMapper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Pos-System</a> &gt; <a href="index.source.html" class="el_package">com.company.Pos_System.service.mapper</a> &gt; <span class="el_source">ProductMapper.java</span></div><h1>ProductMapper.java</h1><pre class="source lang-java linenums">package com.company.Pos_System.service.mapper;
+
+import com.company.Pos_System.dto.ProductDto;
+import com.company.Pos_System.models.Category;
+import com.company.Pos_System.models.Product;
+import com.company.Pos_System.repository.CategoryRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+@Component
+<span class="fc" id="L15">@RequiredArgsConstructor</span>
+public class ProductMapper {
+    private final CategoryRepository categoryRepository;
+
+    public Product toEntity(ProductDto dto) {
+<span class="nc" id="L20">        return Product.builder()</span>
+<span class="nc" id="L21">                .name(dto.getName())</span>
+<span class="nc" id="L22">                .description(dto.getDescription())</span>
+<span class="nc" id="L23">                .price(dto.getPrice())</span>
+<span class="nc" id="L24">                .serial(dto.getSerial())</span>
+<span class="nc" id="L25">                .build();</span>
+    }
+
+    public ProductDto toDto(Product entity) {
+<span class="fc" id="L29">        return ProductDto.builder()</span>
+<span class="fc" id="L30">                .id(entity.getId())</span>
+<span class="fc" id="L31">                .name(entity.getName())</span>
+<span class="fc" id="L32">                .description(entity.getDescription())</span>
+<span class="fc" id="L33">                .price(entity.getPrice())</span>
+<span class="fc" id="L34">                .serial(entity.getSerial())</span>
+<span class="fc" id="L35">                .warehouseId(entity.getWareHouse().getId())</span>
+<span class="fc" id="L36">                .createdAt(entity.getCreatedAt())</span>
+<span class="fc" id="L37">                .categoryId(entity.getCategory().getId())</span>
+<span class="fc" id="L38">                .build();</span>
+    }
+
+    public Product updateEntity(Product entity, ProductDto dto) {
+<span class="nc bnc" id="L42" title="All 2 branches missed.">        if (dto.getName() != null) {</span>
+<span class="nc" id="L43">            entity.setName(dto.getName());</span>
+        }
+<span class="nc bnc" id="L45" title="All 2 branches missed.">        if (dto.getDescription() != null) {</span>
+<span class="nc" id="L46">            entity.setDescription(dto.getDescription());</span>
+        }
+<span class="nc bnc" id="L48" title="All 2 branches missed.">        if (dto.getPrice() != null) {</span>
+<span class="nc" id="L49">            entity.setPrice(dto.getPrice());</span>
+        }
+<span class="nc bnc" id="L51" title="All 2 branches missed.">        if (dto.getSerial() != null) {</span>
+<span class="nc" id="L52">            entity.setSerial(dto.getSerial());</span>
+        }
+<span class="nc bnc" id="L54" title="All 2 branches missed.">        if (dto.getCategoryId() != null) {</span>
+<span class="nc" id="L55">            Category category = categoryRepository.findByIdAndDeletedAtIsNull(</span>
+<span class="nc" id="L56">                    dto.getCategoryId()).orElseThrow(() -&gt; new RuntimeException(&quot;Category not found&quot;));</span>
+
+<span class="nc" id="L58">            category.setProducts(Set.of(entity));</span>
+<span class="nc" id="L59">            categoryRepository.save(category);</span>
+<span class="nc" id="L60">            entity.setCategory(category);</span>
+        }
+<span class="nc" id="L62">        return entity;</span>
+    }
+
+    public Set&lt;ProductDto&gt; toDtoList(Set&lt;Product&gt; entityList) {
+<span class="fc" id="L66">        Set&lt;ProductDto&gt; dtoList = new HashSet&lt;&gt;();</span>
+<span class="fc bfc" id="L67" title="All 2 branches covered.">        for (Product entity : entityList) {</span>
+<span class="fc" id="L68">            dtoList.add(toDto(entity));</span>
+<span class="fc" id="L69">        }</span>
+<span class="fc" id="L70">        return dtoList;</span>
+    }
+
+    public Set&lt;Product&gt; toEntityList(Set&lt;ProductDto&gt; productDtoList) {
+<span class="nc" id="L74">        Set&lt;Product&gt; entityList = new HashSet&lt;&gt;();</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">        for (ProductDto productDto : productDtoList) {</span>
+<span class="nc" id="L76">            entityList.add(toEntity(productDto));</span>
+<span class="nc" id="L77">        }</span>
+<span class="nc" id="L78">        return entityList;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
