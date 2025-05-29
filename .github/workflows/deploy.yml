@@ -28,9 +28,9 @@ jobs:
 
           ssh -o StrictHostKeyChecking=no ${{ secrets.USER }}@${{ secrets.HOST }} << 'EOF'
             cd ~/post-of-sale
-            docker build -t post-system-image .
+            docker build -t pos-system-image .
             docker stop pos-system-container || true
             docker rm pos-system-container || true
-            docker run -d --name pos-system-container --restart=always -p 8080:8080 post-system-image
+            docker run -d --name pos-system-container --restart=always -p 8080:8080 pos-system-image
             sudo systemctl restart pos-system
           EOF
