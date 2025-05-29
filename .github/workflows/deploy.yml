@@ -1,0 +1,36 @@
+name: Deploy Spring Boot App
+
+on:
+  push:
+    branches: [ "dev/Test" ]  # or [dev, Test] if you want both branches
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up SSH agent
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_KEY }}
+
+      - name: Deploy to Server
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.USER }}@${{ secrets.HOST }} << 'EOF'
+            cd ~/post-of-sale || mkdir ~/post-of-sale && cd ~/post-of-sale
+            rm -rf ./*
+          EOF
+
+          rsync -avz --exclude 'target/' ./ ${{ secrets.USER }}@${{ secrets.HOST }}:~/post-of-sale/
+
+          ssh -o StrictHostKeyChecking=no ${{ secrets.USER }}@${{ secrets.HOST }} << 'EOF'
+            cd ~/post-of-sale
+            docker build -t post-system-image .
+            docker stop pos-system-container || true
+            docker rm pos-system-container || true
+            docker run -d --name pos-system-container --restart=always -p 8080:8080 post-system-image
+            sudo systemctl restart pos-system
+          EOF
