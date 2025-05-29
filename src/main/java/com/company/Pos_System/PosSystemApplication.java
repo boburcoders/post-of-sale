@@ -43,7 +43,7 @@ public class PosSystemApplication {
                         .url("https://pos-system.net.uz"))
                 .servers(List.of(
                         new Server().url("https://pos-system.net.uz").description("Production Server"),
-                        new Server().url("http://157.180.90.169:8080").description("Test Server"),
+                        new Server().url("http://157.180.90.169:8080").description("Test Server with CI/CD "),
                         new Server().url("http://localhost:8080").description("LocalHost Server")
                 ))
                 .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
