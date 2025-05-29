@@ -9,6 +9,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.util.List;
+
 @Configuration
 public class AdminConfig {
 
@@ -19,10 +21,12 @@ public class AdminConfig {
     private String userPassword;
 
     BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder(12);
-    @Bean
+
+    /*@Bean
     CommandLineRunner initAdmin(UserRepository userRepository) {
         return args -> {
-            if (userRepository.findByRoleAndDeletedAtIsNull((UserRole.ADMIN)).isEmpty()) {
+            List<Users> admins = userRepository.findByRoleAndDeletedAtIsNull(UserRole.ADMIN);
+            if (admins.isEmpty()) {
                 Users admin = Users.builder()
                         .fullName("Bobur Toshniyozov")
                         .username(adminUsername)
@@ -31,9 +35,10 @@ public class AdminConfig {
                         .build();
                 userRepository.save(admin);
                 System.out.println("✅ Default ADMIN user created!");
-            }else {
-                System.out.println("❌User already exists!");
+            } else {
+                System.out.println("❌ Admin user already exists!");
             }
         };
-    }
+    }*/
+
 }

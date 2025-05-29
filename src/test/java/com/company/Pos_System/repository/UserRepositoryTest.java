@@ -61,9 +61,9 @@ class UserRepositoryTest {
 
     @Test
     void findByRoleAndDeletedAtIsNull() {
-        Optional<Users> result = userRepository.findByRoleAndDeletedAtIsNull(UserRole.ADMIN);
-        assertThat(result).isPresent();
-        assertThat(result.get().getRole()).isEqualTo(UserRole.ADMIN);
+        List<Users> result = userRepository.findByRoleAndDeletedAtIsNull(UserRole.ADMIN);
+        assertThat(result).isNotEmpty(); // There should be at least one admin
+        assertThat(result.get(0).getRole()).isEqualTo(UserRole.ADMIN);
     }
 
     @Test

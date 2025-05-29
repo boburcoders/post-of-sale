@@ -14,24 +14,20 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/dashboard")
-@EnableMethodSecurity
 public class DashboardController {
     private final DashboardService dashboardService;
 
     @GetMapping("/revenue")
-    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     public HttpApiResponse<RevenueStatsDto> getRevenueStats() {
         return dashboardService.getRevenueStats();
     }
 
     @GetMapping("/sales-today")
-    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     public HttpApiResponse<SalesTodayDto> getSalesTodayStats() {
         return dashboardService.getSalesTodayStats();
     }
 
     @GetMapping("/total-orders")
-    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     public HttpApiResponse<TotalOrdersDto> getTotalOrdersStats() {
         return dashboardService.getTotalOrdersStats();
     }

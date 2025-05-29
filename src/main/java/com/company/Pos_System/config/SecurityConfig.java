@@ -75,6 +75,7 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/api/user/login").permitAll()
+                        .requestMatchers("/api/dashboard/**").hasAnyRole("ADMIN", "MANAGER")
                         .anyRequest().fullyAuthenticated()
                 ).build();
     }
@@ -133,6 +134,7 @@ public class SecurityConfig {
                 "https://pos-system.net.uz"
                 , "https://pos-faib.vercel.app",
                 "http://localhost:8080",
+                "http://157.180.90.169:8080",
                 "http://localhost:3000")); // Don't use "*"
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
